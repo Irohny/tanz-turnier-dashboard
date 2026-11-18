@@ -112,6 +112,7 @@ class RoundSummary:
     qualification_inferred: bool
     cross_cutoff: int | None
     cross_margin: int | None
+    cross_conflict: bool
     quality_issues: list[str]
 
 
@@ -166,13 +167,21 @@ class QualityIssue:
     round: str
     note: str
     source: str
+    event_id: str = ""
+    code: str = "incomplete_round_data"
+    severity: str = "unvollständig"
+    action: str = "Rundenbeleg und Quelldaten prüfen."
 
     def to_dict(self) -> dict[str, str]:
         return {
+            "Event-ID": self.event_id,
+            "Code": self.code,
+            "Status": self.severity,
             "Turnier": self.tournament,
             "Runde": self.round,
             "Hinweis": self.note,
             "Quelle": self.source,
+            "Nächster Schritt": self.action,
         }
 
 
@@ -181,6 +190,9 @@ class OpponentEvidence:
     key: str
     name: str
     club: str
+    event_id: str
+    group: str
+    discipline: str
     starts: int
     wins: int
     losses: int
@@ -259,7 +271,9 @@ def _category(title: str) -> tuple[str, str]:
     match = _DISCIPLINE_RE.search(without_date)
     if not match:
         return without_date or "Nicht angegeben", "Nicht angegeben"
-    group = f"{without_date[:match.start()]} {without_date[match.end():]}".strip(" .-")
+    group = f"{without_date[: match.start()]} {without_date[match.end() :]}".strip(
+        " .-"
+    )
     return group or "Nicht angegeben", match.group(1).capitalize()
 
 
@@ -779,6 +793,7 @@ def _build_rounds(event: dict[str, Any], pair_query: str) -> list[dict[str, Any]
             item.quality_issues.append(
                 "Kreuzsumme liegt außerhalb der möglichen Stimmen."
             )
+            item.cross_conflict = True
 
         details = tabges_details.get(item.stage)
         dance_places = item.dance_places
@@ -857,8 +872,13 @@ def _build_rounds(event: dict[str, Any], pair_query: str) -> list[dict[str, Any]
                     qualified=qualified,
                     qualified_for=qualified_for,
                     qualification_inferred=qualification_inferred,
-                    cross_cutoff=details.cutoff if details else None,
-                    cross_margin=details.margin if details else None,
+                    cross_cutoff=(
+                        details.cutoff if details and not item.cross_conflict else None
+                    ),
+                    cross_margin=(
+                        details.margin if details and not item.cross_conflict else None
+                    ),
+                    cross_conflict=item.cross_conflict,
                     quality_issues=item.quality_issues,
                 )
             )
@@ -881,7 +901,7 @@ def _opponent_rows(event: dict[str, Any], pair_query: str) -> list[OpponentResul
         if _page_source(page) == "starter.htm"
         for pair in page.get("paare", [])
     ]
-    rows = []
+    grouped: dict[str, list[OpponentResult]] = defaultdict(list)
     for index, pair in enumerate(rank_pairs):
         if index == target_index:
             continue
@@ -890,7 +910,7 @@ def _opponent_rows(event: dict[str, Any], pair_query: str) -> list[OpponentResul
             continue
         opponent_place = pair_place(event["pages"], pair)
         outcome = compare_places(event["place_range"], opponent_place)
-        rows.append(
+        grouped[_pair_key(name)].append(
             OpponentResult(
                 key=_pair_key(name),
                 name=name,
@@ -898,6 +918,33 @@ def _opponent_rows(event: dict[str, Any], pair_query: str) -> list[OpponentResul
                 outcome=outcome,
                 own_place=event["place_range"],
                 opponent_place=opponent_place,
+                last_seen=event["date"],
+            )
+        )
+    rows = []
+    for key, candidates in grouped.items():
+        signatures = {
+            (
+                row.club,
+                row.own_place,
+                row.opponent_place,
+                row.outcome,
+            )
+            for row in candidates
+        }
+        if len(signatures) == 1:
+            rows.append(candidates[0])
+            continue
+        clubs = {row.club for row in candidates}
+        own_places = {row.own_place for row in candidates}
+        rows.append(
+            OpponentResult(
+                key=key,
+                name=candidates[0].name,
+                club=next(iter(clubs)) if len(clubs) == 1 else "",
+                outcome=PlacementOutcome.UNKNOWN,
+                own_place=(next(iter(own_places)) if len(own_places) == 1 else None),
+                opponent_place=None,
                 last_seen=event["date"],
             )
         )
@@ -929,6 +976,24 @@ def _point_records(event: dict[str, Any], pair_query: str) -> list[PointRecord]:
                         )
                     )
     return points
+
+
+def normalize_quality_issue(issue: dict[str, Any]) -> dict[str, str]:
+    """Normalize current and legacy quality-issue field names."""
+    fields = (
+        ("event_id", "Event-ID", "event_id"),
+        ("code", "Code", "code"),
+        ("severity", "Status", "severity"),
+        ("tournament", "Turnier", "tournament"),
+        ("round", "Runde", "round"),
+        ("note", "Hinweis", "note"),
+        ("source", "Quelle", "source"),
+        ("action", "Nächster Schritt", "action"),
+    )
+    return {
+        target: str(issue.get(current, issue.get(legacy, "")))
+        for target, current, legacy in fields
+    }
 
 
 def summarize_pair_events(pages: list[Page], pair_query: str) -> list[dict[str, Any]]:
@@ -1056,6 +1121,9 @@ def build_pair_dashboard(pages: list[Page], pair_query: str) -> dict[str, Any]:
                     key=row.key,
                     name=row.name,
                     club=row.club,
+                    event_id=event_id,
+                    group=event["group"],
+                    discipline=event["discipline"],
                     starts=1,
                     wins=int(row.outcome is PlacementOutcome.WINS),
                     losses=int(row.outcome is PlacementOutcome.LOSSES),
@@ -1217,6 +1285,94 @@ def build_pair_dashboard(pages: list[Page], pair_query: str) -> dict[str, Any]:
     rounds_by_event = {
         event["id"]: _build_rounds(event, pair_query) for event in events
     }
+    event_quality = []
+    for event in events:
+        sources = {_page_source(page) for page in event["pages"]}
+        source_urls = ", ".join(page["url"] for page in event["pages"])
+        checks = (
+            (
+                "missing_date",
+                event.get("date") is None,
+                "Datum nicht erkannt",
+                "Turnierdatum in der Quelle prüfen.",
+            ),
+            (
+                "missing_city",
+                not event.get("city"),
+                "Turnierort nicht gespeichert",
+                "Quellseite auf eine Ortsangabe prüfen.",
+            ),
+            (
+                "missing_placement",
+                event.get("place_range") is None,
+                "Endplatzierung fehlt oder ist nicht eindeutig",
+                "Ranglistenbeleg für dieses Paar prüfen.",
+            ),
+            (
+                "missing_field_size",
+                event.get("field_size") is None,
+                "Feldgröße nicht verfügbar",
+                "Start- oder Rangliste auf Feldgröße prüfen.",
+            ),
+            (
+                "missing_details",
+                not ({"ergwert.htm", "tabges.htm", "wert_er.htm"} & sources),
+                "Keine Runden- oder Richterdetailseiten archiviert",
+                "Prüfen, ob Detailseiten gecrawlt und importiert werden können.",
+            ),
+        )
+        for code, missing, note, action in checks:
+            if missing:
+                event_quality.append(
+                    {
+                        "event_id": event["id"],
+                        "code": code,
+                        "severity": "unvollständig",
+                        "tournament": event["title"],
+                        "round": "",
+                        "note": note,
+                        "source": source_urls,
+                        "action": action,
+                    }
+                )
+        has_judge_data = any(
+            page.get("wertungsrichter")
+            or any(
+                result.get("richter_wertungen") or result.get("richter_kreuze")
+                for result in page.get("paar_ergebnisse", [])
+            )
+            for page in event["pages"]
+        )
+        if not has_judge_data:
+            event_quality.append(
+                {
+                    "event_id": event["id"],
+                    "code": "missing_judge_data",
+                    "severity": "nicht verfügbar",
+                    "tournament": event["title"],
+                    "round": "",
+                    "note": "Keine Einzelrichterdaten verfügbar",
+                    "source": source_urls,
+                    "action": "Prüfen, ob eine Wertungsdetailseite in der Quelle vorliegt.",
+                }
+            )
+        for round_data in rounds_by_event[event["id"]]:
+            if (
+                round_type(round_data["stage"]) in PRE_FINAL_STAGES
+                and round_data["qualified"] is None
+            ):
+                event_quality.append(
+                    {
+                        "event_id": event["id"],
+                        "code": "unknown_qualification",
+                        "severity": "nicht verfügbar",
+                        "tournament": event["title"],
+                        "round": round_data["stage"],
+                        "note": "Qualifikationsstatus unbekannt",
+                        "source": source_urls,
+                        "action": "Rundenbeleg und Qualifikationskennzeichnung prüfen.",
+                    }
+                )
     for event in events:
         for round_data in rounds_by_event[event["id"]]:
             for issue in round_data["quality_issues"]:
@@ -1229,6 +1385,17 @@ def build_pair_dashboard(pages: list[Page], pair_query: str) -> dict[str, Any]:
                             page["url"]
                             for page in event["pages"]
                             if _page_source(page) in {"ergwert.htm", "tabges.htm"}
+                        ),
+                        event_id=event["id"],
+                        code=(
+                            "cross_conflict"
+                            if "widersprechen" in issue or "außerhalb" in issue
+                            else "incomplete_round_data"
+                        ),
+                        severity=(
+                            "widersprüchlich"
+                            if "widersprechen" in issue or "außerhalb" in issue
+                            else "unvollständig"
                         ),
                     )
                 )
@@ -1260,6 +1427,7 @@ def build_pair_dashboard(pages: list[Page], pair_query: str) -> dict[str, Any]:
         "opponent_rows": [asdict(row) for row in opponent_rows],
         "opponent_evidence": [asdict(row) for row in opponent_evidence],
         "rounds_by_event": rounds_by_event,
+        "event_quality": event_quality,
         "point_records": [asdict(record) for record in point_records],
         "quality_issues": [issue.to_dict() for issue in quality_issues],
     }

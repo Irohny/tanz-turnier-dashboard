@@ -66,8 +66,16 @@ class DashboardNavigationTests(unittest.TestCase):
                 {
                     "url": "https://example.test/event/ergwert.htm",
                     "titel": "01.03.2026 Hgr. D Standard",
+                    "stadt": "Oldenburg",
                     "paare": [
-                        {"name": name, "platz_von": index, "platz_bis": index}
+                        {
+                            "name": name,
+                            "platz_von": index,
+                            "platz_bis": index,
+                            "verein": (
+                                "TSC Beispiel" if name != pair else "Eigener Verein"
+                            ),
+                        }
                         for index, name in enumerate(
                             [
                                 pair,
@@ -259,6 +267,56 @@ class DashboardNavigationTests(unittest.TestCase):
             )
         )
 
+    def test_selecting_dance_heatmap_cell_shows_its_evidence(self):
+        app = AppTest.from_file(
+            Path(__file__).resolve().parents[1] / "app.py",
+            default_timeout=15,
+        ).run()
+        app.switch_page("dashboard_pages/dance.py").run()
+        self.assertEqual(app.exception, [])
+        heatmap = next(table for table in app.dataframe if table.key == "dance_heatmap")
+        assert heatmap.key is not None
+        self.assertEqual(heatmap.value.iloc[0, 0], 100)
+        app.session_state[heatmap.key] = {"selection": {"cells": [[0, "Tango"]]}}
+        app.run()
+        self.assertEqual(app.exception, [])
+        self.assertTrue(any("Quelle:" in item.value for item in app.caption))
+        self.assertTrue(any("auf ganze Prozent" in item.value for item in app.caption))
+
+    def test_club_tables_allow_opponent_style_cell_selection(self):
+        app = AppTest.from_file(
+            Path(__file__).resolve().parents[1] / "app.py",
+            default_timeout=15,
+        ).run()
+        app.switch_page("dashboard_pages/clubs.py").run()
+        self.assertEqual(app.exception, [])
+        club_table = next(
+            table
+            for table in app.dataframe
+            if "Paare" in table.value.columns and "Ihr besser" in table.value.columns
+        )
+        self.assertIsNotNone(club_table.key)
+        app.session_state[club_table.key] = {"selection": {"cells": [[0, "name"]]}}
+        app.run()
+        self.assertTrue(
+            any(
+                "Begegnete Paare von TSC Beispiel" in item.value
+                for item in app.subheader
+            )
+        )
+        pair_table = next(
+            table
+            for table in app.dataframe
+            if "Begegnungen" in table.value.columns
+            and "Letzte Begegnung" in table.value.columns
+        )
+        self.assertIsNotNone(pair_table.key)
+        app.session_state[pair_table.key] = {"selection": {"cells": [[0, "name"]]}}
+        app.run()
+        self.assertTrue(
+            any("Begegnungen mit Eva Beispiel" in item.value for item in app.subheader)
+        )
+
     def test_import_refreshes_shared_context_immediately(self):
         app = AppTest.from_file(Path(__file__).resolve().parents[1] / "app.py").run()
         app.switch_page("dashboard_pages/fetch_results.py").run()
@@ -307,6 +365,9 @@ class DashboardNavigationTests(unittest.TestCase):
             "dashboard_pages/dance.py",
             "dashboard_pages/judges.py",
             "dashboard_pages/opponents.py",
+            "dashboard_pages/clubs.py",
+            "dashboard_pages/locations.py",
+            "dashboard_pages/data_quality.py",
             "dashboard_pages/tournament_archive.py",
             "dashboard_pages/points.py",
             "dashboard_pages/fetch_results.py",
@@ -493,6 +554,54 @@ class DashboardNavigationTests(unittest.TestCase):
         )
         self.assertEqual(list(meetings["Turnier"]), ["01.03.2026 Hgr. D Standard"])
         self.assertEqual(list(meetings["Ort"]), ["Oldenburg"])
+
+    def test_location_quality_and_club_drilldown_pages(self):
+        app = AppTest.from_file(
+            Path(__file__).resolve().parents[1] / "app.py",
+            default_timeout=15,
+        ).run()
+        app.switch_page("dashboard_pages/locations.py").run()
+        self.assertEqual(app.exception, [])
+        location_table = next(
+            table for table in app.dataframe if "Ort" in table.value.columns
+        )
+        self.assertIn("Oldenburg", list(location_table.value["Ort"]))
+
+        app.switch_page("dashboard_pages/clubs.py").run()
+        self.assertEqual(app.exception, [])
+        club_table = next(
+            table
+            for table in app.dataframe
+            if table.key and table.key.startswith("club_selection_")
+        )
+        self.assertIn("TSC Beispiel", list(club_table.value["name"]))
+        assert club_table.key is not None
+        app.session_state[club_table.key] = {"selection": {"cells": [[0, "name"]]}}
+        app.run()
+        self.assertEqual(app.exception, [])
+        pair_table = next(
+            table
+            for table in app.dataframe
+            if table.key
+            and table.key.startswith("club_selection_")
+            and "Letzte Begegnung" in table.value.columns
+        )
+        assert pair_table.key is not None
+        app.session_state[pair_table.key] = {"selection": {"cells": [[0, "name"]]}}
+        app.run()
+        self.assertEqual(app.exception, [])
+        meetings = next(
+            table.value
+            for table in app.dataframe
+            if "Gegnerplatz" in table.value.columns
+        )
+        self.assertEqual(list(meetings["Turnier"]), ["01.03.2026 Hgr. D Standard"])
+
+        app.switch_page("dashboard_pages/data_quality.py").run()
+        self.assertEqual(app.exception, [])
+        self.assertTrue(
+            any("Abdeckung nach Datenart" in item.value for item in app.subheader)
+        )
 
         app.switch_page("dashboard_pages/opponents.py").run()
         opponent_table = next(

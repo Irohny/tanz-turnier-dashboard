@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="de">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mockup 2 – Rundenschwächen</title><link rel="stylesheet" href="erweiterungen.css"></head>
+<body><div class="app">
+<aside><div class="brand"><span class="logo">T</span> Turnierblick</div><p class="side-title">Auswertung</p><nav class="nav"><a href="#">Überblick</a><a href="#">Tänze</a><a class="active" href="#">Rundenanalyse</a><a href="#">Wertungsrichter</a><a href="#">Turniere</a></nav><p class="side-title">Filter</p><div class="filters"><div class="filter"><label>Paar</label><select><option>Christoph / Luzie</option></select></div><div class="filter"><label>Zeitraum</label><select><option>Alle 13 Turniere</option></select></div></div></aside>
+<main><div class="content">
+  <div class="topline"><span>PAARANALYSE / RUNDEN</span><span class="demo">MOCKUP 2 · RUNDENSCHWÄCHEN</span></div>
+  <h1>Wo endet der Turnierweg?</h1><p class="subtitle">Weiterkommen, Ausscheiden und Kreuzabstände über alle belegten Runden.</p>
+  <div class="scope"><span class="chip">Christoph / Luzie</span><span class="chip">Standard</span><span class="chip">15 von 16 Entscheidungen bekannt</span></div>
+  <section class="metrics">
+    <article class="metric"><div class="metric-label">Vorrunde überstanden</div><div class="metric-value">80 %</div><div class="metric-foot">12 von 15 bekannten Fällen</div></article>
+    <article class="metric"><div class="metric-label">Zwischenrunde überstanden</div><div class="metric-value">67 %</div><div class="metric-foot">6 von 9 bekannten Fällen</div></article>
+    <article class="metric"><div class="metric-label">Finale erreicht</div><div class="metric-value">62 %</div><div class="metric-foot">8 von 13 Turnieren</div></article>
+    <article class="metric"><div class="metric-label">Grenze berechenbar</div><div class="metric-value">6 / 16</div><div class="metric-foot">nur diese zählen für „knapp“</div></article>
+  </section>
+  <div class="grid-2">
+    <article class="card"><div class="head"><div><h2>Turniertrichter</h2><p>Anzahl der Turniere, in denen die jeweilige Stufe erreicht wurde</p></div></div>
+      <div class="funnel"><div class="funnel-step" style="width:90%">13 Starts<small>100 %</small></div><div class="funnel-step" style="width:76%">12 Vorrunden überstanden<small>1 Entscheidung unbekannt</small></div><div class="funnel-step" style="width:62%">9 Zwischenrunden erreicht<small>69 % der Starts</small></div><div class="funnel-step" style="width:50%">8 Finals erreicht<small>62 % der Starts</small></div></div>
+      <div class="info">Unbekannte Entscheidungen werden nicht als Weiterkommen oder Ausscheiden gezählt.</div>
+    </article>
+    <article class="card"><div class="head"><div><h2>Typischer Engpass</h2><p>Auf Basis bekannter Qualifikationen</p></div><span class="badge warn">Zwischenrunde</span></div>
+      <div class="callout-number">3×</div><p class="muted">in der Zwischenrunde ausgeschieden</p>
+      <div class="progress-row"><b>Vorrunde</b><div class="progress green"><span style="width:80%"></span></div><output>80 %</output></div>
+      <div class="progress-row"><b>Zwischenrunde</b><div class="progress"><span style="width:67%"></span></div><output>67 %</output></div>
+      <div class="progress-row"><b>Halbfinale</b><div class="progress blue"><span style="width:75%"></span></div><output>75 %</output></div>
+      <div class="warning">Die Quoten haben unterschiedliche Nenner. Sie dürfen nicht ohne die jeweilige Stichprobe verglichen werden.</div>
+    </article>
+  </div>
+  <article class="card section"><div class="head"><div><h2>Runden im Vergleich</h2><p>Kreuzraten und Grenzabstände nur aus vollständigen Daten</p></div></div><div class="table-wrap"><table><thead><tr><th>Runde</th><th>Teilnahmen</th><th>Weiter</th><th>Ausgeschieden</th><th>Unbekannt</th><th>Ø Kreuzrate</th><th>Grenze bekannt</th><th>Knapp ±2 Kreuze</th></tr></thead><tbody><tr><td><b>Vorrunde</b></td><td>16</td><td class="good-text">12</td><td>3</td><td>1</td><td>73 %</td><td>4 / 16</td><td>2</td></tr><tr><td><b>Zwischenrunde</b></td><td>9</td><td class="good-text">6</td><td class="bad-text">3</td><td>0</td><td>68 %</td><td>2 / 9</td><td>1</td></tr><tr><td><b>Halbfinale</b></td><td>4</td><td class="good-text">3</td><td>1</td><td>0</td><td>79 %</td><td>0 / 4</td><td>—</td></tr></tbody></table></div></article>
+  <article class="card section"><div class="head"><div><h2>Belegte knappe Entscheidungen</h2><p>Nur Runden mit vollständiger und widerspruchsfreier Qualifikationsgrenze</p></div><span class="badge">3 Fälle</span></div><div class="table-wrap"><table><thead><tr><th>Turnier</th><th>Ort</th><th>Runde</th><th>Kreuze</th><th>Grenze</th><th>Abstand</th><th>Ergebnis</th></tr></thead><tbody><tr><td>Leine-Pokal</td><td>Hannover</td><td>Zwischenrunde</td><td>23</td><td>24</td><td class="bad-text">−1</td><td>ausgeschieden</td></tr><tr><td>Herbstpokal</td><td>Norderstedt</td><td>Vorrunde</td><td>27</td><td>26</td><td class="good-text">+1</td><td>weiter</td></tr><tr><td>Stadtpokal</td><td>Celle</td><td>Vorrunde</td><td>21</td><td>22</td><td class="bad-text">−1</td><td>ausgeschieden</td></tr></tbody></table></div></article>
+  <div class="mockup-nav"><a href="erweiterung_01_konstanz.html">← Konstanz</a><a href="erweiterung_03_tanzprofil.html">Nächstes: Tanzprofil →</a></div>
+</div></main></div></body></html>

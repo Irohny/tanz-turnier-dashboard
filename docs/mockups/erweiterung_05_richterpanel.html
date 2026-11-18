@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="de">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mockup 5 – Richterpanel</title><link rel="stylesheet" href="erweiterungen.css"></head>
+<body><div class="app">
+<aside><div class="brand"><span class="logo">T</span> Turnierblick</div><p class="side-title">Auswertung</p><nav class="nav"><a href="#">Überblick</a><a href="#">Tänze</a><a class="active" href="#">Wertungsrichter</a><a href="#">Gegnerbilanz</a><a href="#">Turniere</a></nav><p class="side-title">Auswahl</p><div class="filters"><div class="filter"><label>Wertungsrichter</label><select><option>Anna Beispiel</option></select></div><div class="filter"><label>Ansicht</label><select><option>Alle Wertungen</option></select></div></div></aside>
+<main><div class="content">
+  <div class="topline"><span>PAARANALYSE / WERTUNGSRICHTER</span><span class="demo">MOCKUP 5 · PANEL</span></div>
+  <h1>Anna Beispiel im Panelvergleich</h1><p class="subtitle">Relative Abweichungen zum Median der übrigen Richter – keine Aussage über Motive oder Bevorzugung.</p>
+  <div class="scope"><span class="chip">7 gemeinsame Turniere</span><span class="chip">18 verwendbare Vergleiche</span><span class="chip">42 Rohwertungen</span></div>
+  <section class="metrics">
+    <article class="metric"><div class="metric-label">Ø relative Abweichung</div><div class="metric-value">+4,8 pp</div><div class="metric-foot">relativ günstiger als das übrige Panel</div></article>
+    <article class="metric"><div class="metric-label">Typischer Bereich</div><div class="metric-value">−3 bis +9</div><div class="metric-foot">mittlere 50 % der Vergleiche</div></article>
+    <article class="metric"><div class="metric-label">Größte Abweichung</div><div class="metric-value">+18 pp</div><div class="metric-foot">Tango · Finale · Hannover</div></article>
+    <article class="metric"><div class="metric-label">Datenbasis</div><div class="metric-value">18</div><div class="metric-foot">über Mindesthinweis von 5</div></article>
+  </section>
+  <div class="grid-2">
+    <article class="card"><div class="head"><div><h2>Abweichung über die Zeit</h2><p>Pro Vergleich; gestrichelt = keine Abweichung zum Panel</p></div></div>
+      <svg class="chart" viewBox="0 0 690 285" role="img" aria-label="Richterabweichung über die Zeit">
+        <g class="grid"><line x1="55" y1="45" x2="665" y2="45"/><line x1="55" y1="125" x2="665" y2="125"/><line x1="55" y1="205" x2="665" y2="205"/></g><line x1="55" y1="125" x2="665" y2="125" stroke="#747c87" stroke-dasharray="5 5"/>
+        <text x="10" y="49">+20</text><text x="25" y="129">0</text><text x="10" y="209">−20</text>
+        <path d="M70 109 L110 94 L150 137 L190 78 L230 118 L270 101 L310 126 L350 88 L390 113 L430 55 L470 105 L510 96 L550 130 L590 82 L630 101" fill="none" stroke="#3977b8" stroke-width="2.5"/>
+        <g fill="#3977b8"><circle cx="70" cy="109" r="4"/><circle cx="110" cy="94" r="4"/><circle cx="150" cy="137" r="4"/><circle cx="190" cy="78" r="4"/><circle cx="230" cy="118" r="4"/><circle cx="270" cy="101" r="4"/><circle cx="310" cy="126" r="4"/><circle cx="350" cy="88" r="4"/><circle cx="390" cy="113" r="4"/><circle cx="430" cy="55" r="4"/><circle cx="470" cy="105" r="4"/><circle cx="510" cy="96" r="4"/><circle cx="550" cy="130" r="4"/><circle cx="590" cy="82" r="4"/><circle cx="630" cy="101" r="4"/></g>
+        <text x="58" y="245">Bremen</text><text x="240" y="245">Hannover</text><text x="430" y="245">Celle</text><text x="575" y="245">Norderstedt</text>
+      </svg>
+      <div class="caption">Positive Werte = relativ höhere Bewertung als der Median der übrigen Richter im selben Kontext.</div>
+    </article>
+    <article class="card"><div class="head"><div><h2>Nach Runde</h2><p>Nur Gruppen mit mindestens 3 Vergleichen</p></div></div>
+      <div class="progress-row"><b>Vorrunde</b><div class="progress blue"><span style="width:58%"></span></div><output>+3,2 pp</output></div>
+      <div class="progress-row"><b>Zwischenrunde</b><div class="progress blue"><span style="width:66%"></span></div><output>+6,7 pp</output></div>
+      <div class="progress-row"><b>Finale</b><div class="progress blue"><span style="width:62%"></span></div><output>+5,1 pp</output></div>
+      <div class="warning">Die Werte zeigen relative Abweichungen, keine konstante persönliche Tendenz. Panel, Feld und Wertungsart wechseln zwischen Turnieren.</div>
+    </article>
+  </div>
+  <article class="card section"><div class="head"><div><h2>Aufteilung nach Tanz</h2><p>Stichprobe und Streuung bleiben sichtbar</p></div></div><div class="table-wrap"><table><thead><tr><th>Tanz / Wertung</th><th>Vergleiche</th><th>Turniere</th><th>Ø Abweichung</th><th>Typischer Bereich</th><th>Einordnung</th></tr></thead><tbody><tr><td>Tango</td><td>5</td><td>4</td><td class="good-text">+8,1 pp</td><td>+4 bis +12</td><td><span class="badge good">auffällig höher</span></td></tr><tr><td>Langsamer Walzer</td><td>4</td><td>3</td><td>+2,4 pp</td><td>−5 bis +8</td><td><span class="badge">nahe am Panel</span></td></tr><tr><td>Quickstep</td><td>3</td><td>3</td><td>−1,3 pp</td><td>−7 bis +3</td><td><span class="badge">nahe am Panel</span></td></tr><tr><td>Rundenkreuzrate</td><td>6</td><td>5</td><td class="good-text">+5,6 pp</td><td>+1 bis +10</td><td><span class="badge good">relativ höher</span></td></tr></tbody></table></div></article>
+  <div class="info">Im späteren Dashboard führt jede Tabellenzeile zu den einzelnen Turnieren, Rohwerten und Quellen.</div>
+  <div class="mockup-nav"><a href="erweiterung_04_datenqualitaet.html">← Datenqualität</a><a href="erweiterung_06_aufstieg.html">Nächstes: Aufstieg →</a></div>
+</div></main></div></body></html>

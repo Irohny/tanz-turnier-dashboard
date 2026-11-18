@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="de">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mockup 3 – Tanzprofil</title><link rel="stylesheet" href="erweiterungen.css"></head>
+<body><div class="app">
+<aside><div class="brand"><span class="logo">T</span> Turnierblick</div><p class="side-title">Auswertung</p><nav class="nav"><a href="#">Überblick</a><a class="active" href="#">Tänze</a><a href="#">Wertungsrichter</a><a href="#">Gegnerbilanz</a><a href="#">Turniere</a></nav><p class="side-title">Filter</p><div class="filters"><div class="filter"><label>Startklasse</label><select><option>Alle Klassen</option></select></div><div class="filter"><label>Zeitraum</label><select><option>2025–2026</option></select></div></div></aside>
+<main><div class="content">
+  <div class="topline"><span>PAARANALYSE / TÄNZE</span><span class="demo">MOCKUP 3 · LEISTUNGSPROFIL</span></div>
+  <h1>Euer Tanzprofil</h1><p class="subtitle">Leistungsniveau, Schwankung und zeitliche Entwicklung je Tanz – relativ zu euren eigenen Ergebnissen.</p>
+  <div class="scope"><span class="chip">43 Tanzplatzierungen</span><span class="chip">Standard</span><span class="chip">Hgr. D + C</span></div>
+  <section class="metrics">
+    <article class="metric"><div class="metric-label">Stärkster Tanz</div><div class="metric-value">Tango</div><div class="metric-foot">Median 82 % · n=10</div></article>
+    <article class="metric"><div class="metric-label">Stabilster Tanz</div><div class="metric-value">Quickstep</div><div class="metric-foot">nur 9 pp typischer Bereich</div></article>
+    <article class="metric"><div class="metric-label">Größte Verbesserung</div><div class="metric-value delta-up">+14 pp</div><div class="metric-foot">Slowfox · neuer vs. älter</div></article>
+    <article class="metric"><div class="metric-label">Wenigste Daten</div><div class="metric-value">WW</div><div class="metric-foot">n=5 · vorsichtig einordnen</div></article>
+  </section>
+  <article class="card"><div class="head"><div><h2>Heatmap nach Turnier</h2><p>Normierte Tanzplatzierung; grün = höher, rot = niedriger</p></div><span class="badge">Zellen anklickbar</span></div><div class="table-wrap"><table class="heatmap"><thead><tr><th>Turnier</th><th>LW</th><th>Tango</th><th>WW</th><th>Slowfox</th><th>Quickstep</th></tr></thead><tbody><tr><td>Norderstedt · 12.03.</td><td class="heat-4">78 %</td><td class="heat-5">92 %</td><td class="heat-3">65 %</td><td class="heat-5">88 %</td><td class="heat-4">81 %</td></tr><tr><td>Hannover · 14.02.</td><td class="heat-3">69 %</td><td class="heat-4">80 %</td><td class="heat-2">54 %</td><td class="heat-4">75 %</td><td class="heat-4">79 %</td></tr><tr><td>Hamburg · 18.01.</td><td class="heat-4">75 %</td><td class="heat-5">86 %</td><td class="heat-3">62 %</td><td class="heat-3">68 %</td><td class="heat-4">77 %</td></tr><tr><td>Celle · 08.11.</td><td class="heat-2">58 %</td><td class="heat-4">74 %</td><td class="heat-1">44 %</td><td class="heat-2">55 %</td><td class="heat-3">70 %</td></tr></tbody></table></div><div class="caption">Im echten Dashboard öffnet ein Klick den Verlauf und die zugehörigen Quellenwerte.</div></article>
+  <div class="grid-even section">
+    <article class="card"><div class="head"><div><h2>Niveau &amp; Streuung</h2><p>Punkt = Median; Linie = mittlere 50 %</p></div></div>
+      <svg class="chart" viewBox="0 0 570 280" role="img" aria-label="Median und Streuung je Tanz">
+        <g class="grid"><line x1="130" y1="30" x2="540" y2="30"/><line x1="130" y1="80" x2="540" y2="80"/><line x1="130" y1="130" x2="540" y2="130"/><line x1="130" y1="180" x2="540" y2="180"/><line x1="130" y1="230" x2="540" y2="230"/></g>
+        <g><text x="10" y="35">Langsamer Walzer</text><text x="10" y="85">Tango</text><text x="10" y="135">Wiener Walzer</text><text x="10" y="185">Slowfox</text><text x="10" y="235">Quickstep</text></g>
+        <g stroke="#8a929d" stroke-width="7" stroke-linecap="round"><line x1="320" y1="30" x2="440" y2="30"/><line x1="390" y1="80" x2="495" y2="80"/><line x1="245" y1="130" x2="370" y2="130"/><line x1="280" y1="180" x2="455" y2="180"/><line x1="370" y1="230" x2="430" y2="230"/></g>
+        <g fill="#ff4b4b"><circle cx="380" cy="30" r="7"/><circle cx="450" cy="80" r="7"/><circle cx="310" cy="130" r="7"/><circle cx="395" cy="180" r="7"/><circle cx="402" cy="230" r="7"/></g>
+        <g><text x="130" y="265">40 %</text><text x="320" y="265">70 %</text><text x="500" y="265">100 %</text></g>
+      </svg>
+    </article>
+    <article class="card"><div class="head"><div><h2>Beschreibende Hinweise</h2><p>Keine technische Trainingsdiagnose</p></div></div>
+      <div class="success"><b>Tango liegt wiederholt über eurem persönlichen Durchschnitt.</b><br>10 Beobachtungen aus 8 Turnieren.</div>
+      <div class="info"><b>Quickstep ist am stabilsten.</b><br>Die mittleren 50 % liegen nur 9 Prozentpunkte auseinander.</div>
+      <div class="warning"><b>Wiener Walzer: Datenbasis klein.</b><br>Mit n=5 noch keine robuste Aussage zur Entwicklung.</div>
+      <div class="info"><b>Slowfox verbessert sich zuletzt.</b><br>Neuere Saisonhälfte +14 Prozentpunkte gegenüber der älteren.</div>
+    </article>
+  </div>
+  <div class="mockup-nav"><a href="erweiterung_02_runden.html">← Runden</a><a href="erweiterung_04_datenqualitaet.html">Nächstes: Datenqualität →</a></div>
+</div></main></div></body></html>

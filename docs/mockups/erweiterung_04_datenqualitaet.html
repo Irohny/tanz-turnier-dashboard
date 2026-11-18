@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="de">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mockup 4 – Datenqualität</title><link rel="stylesheet" href="erweiterungen.css"></head>
+<body><div class="app">
+<aside><div class="brand"><span class="logo">T</span> Turnierblick</div><p class="side-title">Verwaltung</p><nav class="nav"><a href="#">Turnier erfassen</a><a href="#">Turniere</a><a class="active" href="#">Datenqualität</a></nav><p class="side-title">Filter</p><div class="filters"><div class="filter"><label>Status</label><select><option>Alle Probleme</option></select></div><div class="filter"><label>Zeitraum</label><select><option>Gesamtes Archiv</option></select></div></div></aside>
+<main><div class="content">
+  <div class="topline"><span>ARCHIV / DATENQUALITÄT</span><span class="demo">MOCKUP 4 · QUALITÄT</span></div>
+  <h1>Wie vollständig ist das Archiv?</h1><p class="subtitle">Probleme, fehlende Angaben und empfohlene nächste Schritte auf einen Blick.</p>
+  <div class="scope"><span class="chip">85 Quellseiten</span><span class="chip">13 Turniere des Paares</span><span class="chip">Parser v4–v5</span></div>
+  <section class="metrics">
+    <article class="metric"><div class="metric-label">Vollständig für Kernanalyse</div><div class="metric-value">11 / 13</div><div class="metric-foot">Ort, Platz und Feldgröße vorhanden</div></article>
+    <article class="metric"><div class="metric-label">Erneut crawlen</div><div class="metric-value">2</div><div class="metric-foot">ältere oder unvollständige Quellen</div></article>
+    <article class="metric"><div class="metric-label">Fachlicher Konflikt</div><div class="metric-value">1</div><div class="metric-foot">widersprüchliche Kreuzsumme</div></article>
+    <article class="metric"><div class="metric-label">Ohne berechenbare Grenze</div><div class="metric-value">10</div><div class="metric-foot">von 16 relevanten Runden</div></article>
+  </section>
+  <div class="grid-2">
+    <article class="card"><div class="head"><div><h2>Abdeckung nach Datenart</h2><p>Bezieht sich auf die aktuell gefilterten 13 Turniere</p></div></div>
+      <div class="progress-row"><b>Datum</b><div class="progress green"><span style="width:100%"></span></div><output>13 / 13</output></div>
+      <div class="progress-row"><b>Ort</b><div class="progress green"><span style="width:100%"></span></div><output>13 / 13</output></div>
+      <div class="progress-row"><b>Endplatz</b><div class="progress green"><span style="width:92%"></span></div><output>12 / 13</output></div>
+      <div class="progress-row"><b>Feldgröße</b><div class="progress blue"><span style="width:92%"></span></div><output>12 / 13</output></div>
+      <div class="progress-row"><b>Rundendetails</b><div class="progress blue"><span style="width:77%"></span></div><output>10 / 13</output></div>
+      <div class="progress-row"><b>Kreuzgrenze</b><div class="progress"><span style="width:38%"></span></div><output>6 / 16</output></div>
+    </article>
+    <article class="card"><div class="head"><div><h2>Was bedeutet ein Hinweis?</h2></div></div>
+      <div class="success"><b>Vollständig</b><br>Die Kennzahl lässt sich aus widerspruchsfreien Quellen berechnen.</div>
+      <div class="warning"><b>Unvollständig</b><br>Eine Quellangabe fehlt. Das ist nicht automatisch ein Parserfehler.</div>
+      <div class="info"><b>Nicht anwendbar</b><br>Manche Angaben, etwa eine Kreuzgrenze im Finale, werden fachlich nicht benötigt.</div>
+    </article>
+  </div>
+  <article class="card section"><div class="head"><div><h2>Prüfliste</h2><p>Nach Dringlichkeit sortiert</p></div><span class="badge warn">3 Aktionen empfohlen</span></div>
+    <div class="quality-row"><span class="status-dot bad"></span><div><b>Leine-Pokal · Hannover</b><div class="muted">Zwischenrunde: Richterkreuze widersprechen der Gesamtsumme.</div></div><span class="badge bad">Konflikt</span><button class="button">Quelle prüfen</button></div>
+    <div class="quality-row"><span class="status-dot warn"></span><div><b>Frühjahrsturnier · Bremen</b><div class="muted">Keine Endplatzierung aus dem älteren Import gespeichert.</div></div><span class="badge warn">Fehlt</span><button class="button primary">Neu erfassen</button></div>
+    <div class="quality-row"><span class="status-dot warn"></span><div><b>Sommerpokal · Celle</b><div class="muted">Parser v4; neuere Parserfassung verfügbar.</div></div><span class="badge warn">Veraltet</span><button class="button primary">Neu erfassen</button></div>
+    <div class="quality-row"><span class="status-dot"></span><div><b>Herbstpokal · Norderstedt</b><div class="muted">Ort, Platz, Feldgröße, Runden und Richterwerte vollständig.</div></div><span class="badge good">OK</span><button class="button">Details</button></div>
+  </article>
+  <div class="mockup-nav"><a href="erweiterung_03_tanzprofil.html">← Tanzprofil</a><a href="erweiterung_05_richterpanel.html">Nächstes: Richterpanel →</a></div>
+</div></main></div></body></html>

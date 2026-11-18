@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="de">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mockup 1 – Konstanz</title><link rel="stylesheet" href="erweiterungen.css"></head>
+<body><div class="app">
+<aside>
+  <div class="brand"><span class="logo">T</span> Turnierblick</div>
+  <p class="side-title">Auswertung</p>
+  <nav class="nav"><a class="active" href="#">Überblick</a><a href="#">Tänze</a><a href="#">Wertungsrichter</a><a href="#">Gegnerbilanz</a><a href="#">Turniere</a><a href="#">Punkte &amp; Plätze</a></nav>
+  <p class="side-title">Filter &amp; Paar ändern</p>
+  <div class="filters"><div class="filter"><label>Mein Paar</label><select><option>Christoph / Luzie</option></select></div><div class="filter"><label>Startgruppe</label><select><option>Alle</option></select></div><div class="filter"><label>Disziplin</label><select><option>Standard</option></select></div><div class="filter"><label>Zeitraum</label><select><option>2025–2026</option></select></div></div>
+</aside>
+<main><div class="content">
+  <div class="topline"><span>PAARANALYSE / ENTWICKLUNG</span><span class="demo">MOCKUP 1 · KONSTANZ</span></div>
+  <h1>Form &amp; Konstanz</h1><p class="subtitle">Nicht nur der Durchschnitt: So stabil waren eure Ergebnisse im gewählten Zeitraum.</p>
+  <div class="scope"><span class="chip">Christoph / Luzie</span><span class="chip">Standard · alle Klassen</span><span class="chip">13 Turniere</span></div>
+  <section class="metrics">
+    <article class="metric"><div class="metric-label">Median normierter Platz</div><div class="metric-value">72 %</div><div class="metric-foot">12 von 13 Turnieren auswertbar</div></article>
+    <article class="metric"><div class="metric-label">Typischer Bereich</div><div class="metric-value">64–81 %</div><div class="metric-foot">mittlere 50 % der Ergebnisse</div></article>
+    <article class="metric"><div class="metric-label">Finalquote</div><div class="metric-value">62 %</div><div class="metric-foot">8 von 13 Starts</div></article>
+    <article class="metric"><div class="metric-label">Letzte 3 Starts</div><div class="metric-value delta-up">+9 pp</div><div class="metric-foot">gegenüber dem Gesamtmedian</div></article>
+  </section>
+  <div class="grid-2">
+    <article class="card">
+      <div class="head"><div><h2>Leistung und Schwankungsbereich</h2><p>Normierter Endplatz; Band = typischer Ergebnisbereich</p></div><span class="badge good">Form zuletzt steigend</span></div>
+      <svg class="chart" viewBox="0 0 700 290" role="img" aria-label="Leistungsverlauf mit typischem Schwankungsbereich">
+        <g class="grid"><line x1="55" y1="30" x2="675" y2="30"/><line x1="55" y1="90" x2="675" y2="90"/><line x1="55" y1="150" x2="675" y2="150"/><line x1="55" y1="210" x2="675" y2="210"/></g>
+        <g><text x="5" y="34">100 %</text><text x="15" y="94">75 %</text><text x="15" y="154">50 %</text><text x="15" y="214">25 %</text></g>
+        <rect x="55" y="76" width="620" height="42" rx="8" fill="#eaf3fb"/><line x1="55" y1="98" x2="675" y2="98" stroke="#3977b8" stroke-dasharray="5 5"/>
+        <path d="M70 128 L120 96 L170 107 L220 79 L270 145 L320 113 L370 91 L420 134 L470 84 L520 104 L570 70 L620 62 L670 48" fill="none" stroke="#ff4b4b" stroke-width="3"/>
+        <g fill="#ff4b4b" stroke="#fff" stroke-width="2"><circle cx="70" cy="128" r="5"/><circle cx="120" cy="96" r="5"/><circle cx="170" cy="107" r="5"/><circle cx="220" cy="79" r="5"/><circle cx="270" cy="145" r="5"/><circle cx="320" cy="113" r="5"/><circle cx="370" cy="91" r="5"/><circle cx="420" cy="134" r="5"/><circle cx="470" cy="84" r="5"/><circle cx="520" cy="104" r="5"/><circle cx="570" cy="70" r="5"/><circle cx="620" cy="62" r="5"/><circle cx="670" cy="48" r="5"/></g>
+        <text x="58" y="246">Feb</text><text x="205" y="246">Mai</text><text x="360" y="246">Aug</text><text x="512" y="246">Nov</text><text x="640" y="246">Mär</text>
+      </svg>
+      <div class="legend"><span>Einzelergebnis</span><span class="green">Median 72 %</span><span>typischer Bereich 64–81 %</span></div>
+    </article>
+    <article class="card">
+      <div class="head"><div><h2>Einordnung</h2><p>Deskriptiv, keine sportliche Bewertung</p></div></div>
+      <h3>Was fällt auf?</h3>
+      <div class="success"><b>Die jüngsten Ergebnisse liegen über eurem Median.</b><br>Alle drei letzten Starts liegen innerhalb oder oberhalb des typischen Bereichs.</div>
+      <div class="warning"><b>Die Stichprobe ist noch überschaubar.</b><br>13 Turniere reichen für eine Beschreibung, nicht für eine belastbare Prognose.</div>
+      <h3 class="section">Quoten aus belegten Runden</h3>
+      <div class="progress-row"><b>Vorrunde geschafft</b><div class="progress green"><span style="width:80%"></span></div><output>12 / 15</output></div>
+      <div class="progress-row"><b>Finale erreicht</b><div class="progress blue"><span style="width:62%"></span></div><output>8 / 13</output></div>
+    </article>
+  </div>
+  <article class="card section"><div class="head"><div><h2>Ergebnisse hinter den Kennzahlen</h2><p>Sortierbare Streamlit-Tabelle im späteren Dashboard</p></div><span class="badge">12 auswertbar</span></div><div class="table-wrap"><table><thead><tr><th>Datum</th><th>Turnier</th><th>Ort</th><th>Platz / Feld</th><th>Normiert</th><th>Abweichung vom Median</th></tr></thead><tbody><tr><td>12.03.2026</td><td>Frühlingspokal</td><td>Norderstedt</td><td>2 / 11</td><td class="good-text">90 %</td><td class="good-text">+18 pp</td></tr><tr><td>14.02.2026</td><td>Leine-Pokal</td><td>Hannover</td><td>3 / 12</td><td>82 %</td><td class="good-text">+10 pp</td></tr><tr><td>18.01.2026</td><td>Neujahrscup</td><td>Hamburg</td><td>4 / 13</td><td>75 %</td><td>+3 pp</td></tr></tbody></table></div></article>
+  <div class="mockup-nav"><a href="erweiterungen.html">← Alle Mockups</a><a href="erweiterung_02_runden.html">Nächstes: Rundenschwächen →</a></div>
+</div></main></div></body></html>

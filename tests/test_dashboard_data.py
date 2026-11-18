@@ -7,6 +7,7 @@ from etl.data import (
     filter_events,
     filter_tournaments_for_pair,
     judge_meetings,
+    normalize_quality_issue,
     pair_options,
 )
 
@@ -112,6 +113,24 @@ def sample_pages():
 
 
 class DashboardDataTests(unittest.TestCase):
+    def test_quality_issue_normalization_accepts_legacy_snake_case_fields(self):
+        issue = {
+            "event_id": "event-1",
+            "code": "legacy_issue",
+            "severity": "unvollständig",
+            "tournament": "Testturnier",
+            "round": "Vorrunde",
+            "note": "Testhinweis",
+            "source": "https://example.test/",
+            "action": "Quelldaten prüfen.",
+        }
+
+        normalized = normalize_quality_issue(issue)
+
+        self.assertEqual(normalized["event_id"], "event-1")
+        self.assertEqual(normalized["code"], "legacy_issue")
+        self.assertEqual(normalized["note"], "Testhinweis")
+
     def test_pair_options_include_events_without_starter_page(self):
         pages = sample_pages()
         missing = "Neue Taenzerin / Neuer Taenzer"
@@ -200,6 +219,12 @@ class DashboardDataTests(unittest.TestCase):
         self.assertEqual(opponents[OTHER_A]["losses"], 0)
         self.assertEqual(opponents[OTHER_B]["wins"], 1)
         self.assertEqual(opponents[OTHER_B]["losses"], 1)
+        evidence = [
+            row for row in analysis["opponent_evidence"] if row["name"] == OTHER_A
+        ]
+        self.assertEqual(len({row["event_id"] for row in evidence}), 2)
+        self.assertEqual({row["group"] for row in evidence}, {"Hgr. D"})
+        self.assertEqual({row["discipline"] for row in evidence}, {"Standard"})
 
     def test_opponents_merge_by_pair_name_and_include_clubs(self):
         pages = sample_pages()
@@ -218,6 +243,47 @@ class DashboardDataTests(unittest.TestCase):
         opponents = {row["name"]: row for row in analysis["opponent_rows"]}
         self.assertEqual(opponents[OTHER_A]["starts"], 2)
         self.assertEqual(opponents[OTHER_A]["club"], "Club 1; Club 2")
+        evidence = [
+            row for row in analysis["opponent_evidence"] if row["name"] == OTHER_A
+        ]
+        self.assertEqual({row["club"] for row in evidence}, {"Club 1", "Club 2"})
+
+    def test_duplicate_ranked_pair_counts_once_and_conflicts_become_unknown(self):
+        pages = event_pages(
+            "duplicate-opponent",
+            "01.03.2026 Hgr. D Standard",
+            [PAIR, OTHER_A],
+        )
+        duplicate = dict(pages[1]["paare"][1])
+        pages[1]["paare"][1]["verein"] = "Doppelter Verein"
+        duplicate["verein"] = "Anderer Verein"
+        duplicate["platz_von"] = 3
+        duplicate["platz_bis"] = 3
+        pages[1]["paare"].append(duplicate)
+
+        analysis = build_pair_dashboard(pages, PAIR)
+
+        evidence = [
+            row for row in analysis["opponent_evidence"] if row["name"] == OTHER_A
+        ]
+        self.assertEqual(len(evidence), 1)
+        self.assertEqual(evidence[0]["outcome"], "unknown")
+        self.assertEqual(evidence[0]["opponent_place"], None)
+
+    def test_quality_checks_are_event_scoped_and_actionable(self):
+        pages = event_pages(
+            "incomplete",
+            "01.03.2026 Hgr. D Standard",
+            [PAIR, OTHER_A],
+        )
+
+        analysis = build_pair_dashboard(pages, PAIR)
+
+        issues = analysis["event_quality"]
+        self.assertTrue(any(row["code"] == "missing_city" for row in issues))
+        self.assertTrue(any(row["code"] == "missing_judge_data" for row in issues))
+        self.assertTrue(all(row["event_id"] for row in issues))
+        self.assertTrue(all(row["action"] for row in issues))
 
     def test_judge_meetings_include_panels_without_comparable_marks(self):
         pages = sample_pages()

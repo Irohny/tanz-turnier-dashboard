@@ -29,7 +29,7 @@ CONTEXT_KEY = "dashboard_context"
 IMPORT_MESSAGE_KEY = "dashboard_import_message"
 IMPORT_WARNINGS_KEY = "dashboard_import_warnings"
 # Increment when the analysis produced by etl.data changes.
-ANALYSIS_CACHE_VERSION = 2
+ANALYSIS_CACHE_VERSION = 5
 ArchiveToken = tuple[tuple[int, int, int, int], ...]
 
 
@@ -235,6 +235,12 @@ def build_dashboard_context(
         discipline=selected_discipline,
         date_range=date_range,
     )
+    progression_events = filter_events(
+        events,
+        group="Alle",
+        discipline=selected_discipline,
+        date_range=date_range,
+    )
     st.sidebar.caption(
         f"{pair_name} · {selected_group} · {selected_discipline} · "
         f"{len(filtered_events)} Turniere"
@@ -256,6 +262,15 @@ def build_dashboard_context(
         pages,
         analysis_version=ANALYSIS_CACHE_VERSION,
     )
+    progression_keys = tuple(sorted({event["key"] for event in progression_events}))
+    progression_analysis = cached_analysis(
+        resolved_database,
+        token,
+        pair_name,
+        progression_keys,
+        pages,
+        analysis_version=ANALYSIS_CACHE_VERSION,
+    )
     detail_count = sum(
         1
         for event in filtered_events
@@ -265,8 +280,25 @@ def build_dashboard_context(
     context.update(
         status="ready",
         pair_name=pair_name,
+        selected_group=selected_group,
+        selected_discipline=selected_discipline,
         events=filtered_events,
         analysis=analysis,
+        progression_events=progression_events,
+        progression_analysis=progression_analysis,
+        undated_events=(
+            sum(
+                event.get("date") is None
+                and (selected_group == "Alle" or event["group"] == selected_group)
+                and (
+                    selected_discipline == "Alle"
+                    or event["discipline"] == selected_discipline
+                )
+                for event in events
+            )
+            if date_range
+            else 0
+        ),
         detail_count=detail_count,
         subtitle=(
             f"{pair_name} · {selected_group} · {selected_discipline} · "
