@@ -1,0 +1,21 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+.playwright-mcp/
+.pytest_cache/
+.ruff_cache/
+.html_cache/
+.github/
+.DS_Store
+
+# Virtual environments
+.venv
+.streamlit/secrets.toml
+
+# Local tournament archive
+
+*.sqlite3

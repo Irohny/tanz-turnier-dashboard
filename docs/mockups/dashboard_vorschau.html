@@ -1,0 +1,973 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Turnier-Auswertung – Dashboard-Vorschau</title>
+  <link rel="icon" href="data:,">
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1d2738;
+      --muted: #718096;
+      --line: #e6eaf0;
+      --paper: #ffffff;
+      --canvas: #f5f7fa;
+      --navy: #18324b;
+      --blue: #2874a6;
+      --blue-soft: #e8f2f8;
+      --teal: #19877b;
+      --teal-soft: #e7f5f2;
+      --amber: #bf7a27;
+      --amber-soft: #fff4e5;
+      --red: #b65b5b;
+      --red-soft: #fbefef;
+      --shadow: 0 8px 26px rgb(34 54 78 / 5%);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      font: 14px/1.5 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 252px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    aside {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+      padding: 25px 18px 20px;
+      background: var(--paper);
+      border-right: 1px solid var(--line);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 0 9px;
+      color: var(--navy);
+      font-size: 15px;
+      font-weight: 750;
+      letter-spacing: -.02em;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      border-radius: 11px;
+      background: var(--navy);
+      color: white;
+      font-size: 16px;
+    }
+
+    .nav {
+      display: grid;
+      gap: 5px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      width: 100%;
+      padding: 10px 12px;
+      border: 0;
+      border-radius: 9px;
+      background: transparent;
+      color: #536176;
+      font-weight: 570;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .nav-item.active {
+      background: #eaf1f7;
+      color: var(--navy);
+      font-weight: 700;
+    }
+
+    .nav-icon {
+      width: 18px;
+      color: #7c8ba0;
+      text-align: center;
+      font-size: 15px;
+    }
+
+    .nav-item.active .nav-icon { color: var(--blue); }
+
+    .filters {
+      display: grid;
+      gap: 15px;
+      padding: 17px 12px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .filter-title {
+      margin: 0;
+      color: #536176;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 6px;
+      color: #66758a;
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .select, .date-input {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 39px;
+      padding: 8px 10px;
+      border: 1px solid #dfe5ec;
+      border-radius: 8px;
+      background: white;
+      color: #344256;
+      font-size: 12px;
+    }
+
+    .select .chevron { color: #8794a5; }
+    .date-range { display: grid; gap: 7px; }
+
+    .sidebar-note {
+      margin-top: auto;
+      padding: 12px;
+      border: 1px solid #e7edf3;
+      border-radius: 10px;
+      background: #f9fbfd;
+      color: #6a788b;
+      font-size: 11px;
+    }
+
+    .sidebar-note strong {
+      display: block;
+      margin-bottom: 4px;
+      color: #405168;
+      font-size: 12px;
+    }
+
+    main {
+      width: min(100%, 1500px);
+      margin: 0 auto;
+      padding: 29px clamp(20px, 3vw, 46px) 42px;
+    }
+
+    .topline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 23px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .crumb { display: flex; align-items: center; gap: 8px; }
+    .crumb b { color: #42546b; font-weight: 650; }
+
+    .demo-badge {
+      padding: 5px 9px;
+      border: 1px solid #e8d8b8;
+      border-radius: 99px;
+      background: #fffaf0;
+      color: #8c642c;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .06em;
+    }
+
+    .heading {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 21px;
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--navy);
+      font-size: clamp(24px, 3vw, 31px);
+      letter-spacing: -.035em;
+      line-height: 1.15;
+    }
+
+    .subtitle { margin: 7px 0 0; color: var(--muted); }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 13px;
+      border: 1px solid #dbe3eb;
+      border-radius: 8px;
+      background: white;
+      color: #41536a;
+      font-size: 12px;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 22px;
+      overflow-x: auto;
+      margin-bottom: 19px;
+      border-bottom: 1px solid var(--line);
+      color: #748197;
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .tab { padding: 0 2px 11px; white-space: nowrap; }
+    .tab {
+      border: 0;
+      border-bottom: 2px solid transparent;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .tab.active { border-bottom-color: var(--blue); color: var(--blue); }
+    [hidden] { display: none !important; }
+
+    .scope {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 17px;
+      color: #607087;
+      font-size: 12px;
+    }
+
+    .scope-chip {
+      padding: 5px 9px;
+      border: 1px solid #e0e7ee;
+      border-radius: 99px;
+      background: white;
+      color: #43566f;
+      font-weight: 650;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      max-width: 760px;
+      margin-bottom: 17px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+
+    .metric { min-height: 120px; padding: 16px 17px; }
+    .metric-label { color: #718096; font-size: 11px; font-weight: 700; }
+    .metric-value {
+      margin-top: 10px;
+      color: var(--navy);
+      font-size: 27px;
+      font-weight: 750;
+      letter-spacing: -.035em;
+      line-height: 1;
+    }
+
+    .metric-foot {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      color: #8390a1;
+      font-size: 10px;
+    }
+
+    .neutral-pill {
+      padding: 2px 6px;
+      border-radius: 5px;
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-weight: 750;
+    }
+
+    .grid-main {
+      display: block;
+      margin-bottom: 16px;
+    }
+
+    .grid-main > article, .grid-lower > article { margin-bottom: 16px; }
+
+    .panel { padding: 19px 20px; }
+    .panel-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 17px;
+    }
+
+    h2 {
+      margin: 0;
+      color: #25364c;
+      font-size: 14px;
+      font-weight: 750;
+      letter-spacing: -.01em;
+    }
+
+    .panel-subtitle { margin: 4px 0 0; color: #8490a0; font-size: 11px; }
+    .more { color: #8391a3; font-size: 18px; line-height: 1; }
+
+    .dance-list { display: grid; gap: 14px; }
+    .dance-row {
+      display: grid;
+      grid-template-columns: 120px minmax(70px, 1fr) 42px;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .dance-name { color: #4a5a70; font-size: 12px; font-weight: 600; }
+    .bar-track {
+      height: 9px;
+      overflow: hidden;
+      border-radius: 99px;
+      background: #edf1f5;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #4a94bd, #2874a6);
+    }
+
+    .dance-score { color: #35475e; font-size: 11px; font-weight: 750; text-align: right; }
+    .chart-legend { margin-top: 15px; color: #8a96a5; font-size: 10px; }
+    .chart-legend strong { color: #53667c; }
+
+    .judge-plot { display: grid; gap: 12px; }
+    .judge-row {
+      display: grid;
+      grid-template-columns: 100px minmax(100px, 1fr) 47px;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .judge-name { overflow: hidden; color: #4a5a70; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+    .diverging {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      height: 16px;
+    }
+
+    .diverging::after {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 1px;
+      background: #d7dfe7;
+      content: "";
+    }
+
+    .left-side, .right-side { display: flex; height: 9px; }
+    .left-side { justify-content: flex-end; }
+    .right-side { justify-content: flex-start; }
+    .div-bar { height: 9px; min-width: 2px; border-radius: 99px; }
+    .positive { background: #36a18f; }
+    .negative { background: #d58585; }
+    .judge-value { font-size: 11px; font-weight: 750; text-align: right; }
+    .judge-value.pos { color: var(--teal); }
+    .judge-value.neg { color: var(--red); }
+
+    .judge-axis {
+      display: flex;
+      justify-content: space-between;
+      margin: 4px 55px 0 108px;
+      color: #98a2b1;
+      font-size: 9px;
+    }
+
+    .callout {
+      margin-top: 14px;
+      padding: 10px 11px;
+      border-radius: 8px;
+      background: #f5f8fb;
+      color: #748196;
+      font-size: 10px;
+    }
+
+    .callout strong { color: #4d6077; }
+    .grid-lower {
+      display: block;
+    }
+
+    .trend-chart {
+      display: block;
+      width: 100%;
+      height: 190px;
+      margin-top: 8px;
+    }
+
+    .chart-labels {
+      display: flex;
+      justify-content: space-between;
+      color: #8994a3;
+      font-size: 10px;
+    }
+
+    .archive-details { margin-top: 16px; }
+    .points-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 760px; }
+    .points-list td:last-child, .points-list th:last-child { text-align: right; }
+    .page-intro { margin: 0 0 16px; color: var(--muted); font-size: 12px; }
+
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    .opponents-table { table-layout: fixed; }
+    .opponents-table th,
+    .opponents-table td { padding-right: 4px; padding-left: 4px; }
+    .opponents-table th { font-size: 8px; letter-spacing: .03em; }
+    .opponents-table th:nth-child(1) { width: 44%; }
+    .opponents-table th:nth-child(2) { width: 13%; }
+    .opponents-table th:nth-child(3) { width: 12%; }
+    .opponents-table th:nth-child(4) { width: 15%; }
+    .opponents-table th:nth-child(5) { width: 16%; }
+    .opponents-table .record { min-width: 0; }
+    .opponents-table .record > span:last-child { min-width: 0; }
+    .opponents-table td:first-child { white-space: normal; }
+    .opponents-table .opponent-name { overflow-wrap: anywhere; }
+
+    th {
+      padding: 9px 8px;
+      border-bottom: 1px solid var(--line);
+      color: #8994a3;
+      font-size: 9px;
+      font-weight: 750;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    td {
+      padding: 11px 8px;
+      border-bottom: 1px solid #f0f2f5;
+      color: #56657a;
+      font-size: 10px;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+    td strong { color: #34465c; font-weight: 700; }
+
+    .record {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 145px;
+    }
+
+    .avatar {
+      display: grid;
+      width: 27px;
+      height: 27px;
+      flex: 0 0 27px;
+      place-items: center;
+      border-radius: 9px;
+      background: #edf3f8;
+      color: #52718d;
+      font-size: 9px;
+      font-weight: 800;
+    }
+
+    .subcell { display: block; margin-top: 2px; color: #97a1ae; font-size: 9px; }
+    .win { color: var(--teal); font-weight: 750; }
+    .loss { color: var(--red); font-weight: 750; }
+    .muted { color: #9aa4b1; }
+
+    .event-place {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 7px;
+      border-radius: 6px;
+      background: var(--teal-soft);
+      color: #14796f;
+      font-size: 10px;
+      font-weight: 750;
+    }
+
+    .event-place.silver { background: #f0f2f5; color: #68778c; }
+    .event-place.bronze { background: var(--amber-soft); color: #a56b22; }
+    .cross-cell { color: #53667c; font-weight: 700; }
+
+    .bottom-note {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      margin-top: 16px;
+      padding: 11px 14px;
+      border: 1px solid #e3eaf0;
+      border-radius: 9px;
+      background: #fafcfd;
+      color: #79879a;
+      font-size: 10px;
+    }
+
+    .bottom-note b { color: #4f6279; }
+
+    @media (max-width: 1050px) {
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 700px) {
+      .app { grid-template-columns: minmax(0, 1fr); }
+      aside { gap: 14px; padding: 15px; border-right: 0; border-bottom: 1px solid var(--line); }
+      .nav { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .nav-item { justify-content: center; padding: 9px 5px; font-size: 11px; }
+      .nav-icon { display: none; }
+      .filters { grid-template-columns: 1fr 1fr; gap: 10px; padding: 12px 3px 0; }
+      .filter-title { grid-column: 1 / -1; }
+      .app, aside, main, .filters, .field { min-width: 0; width: 100%; }
+      .sidebar-note { display: none; }
+      main { padding: 20px 14px 30px; }
+      .heading { align-items: flex-start; flex-direction: column; }
+      .scope { flex-wrap: wrap; }
+      .scope-chip { white-space: normal; }
+      .metrics, .points-summary { gap: 9px; }
+      .metric { min-height: 108px; padding: 13px; }
+      .metric-value { font-size: 23px; }
+      .dance-row { grid-template-columns: 105px minmax(55px, 1fr) 38px; gap: 8px; }
+      .panel { padding: 16px 13px; }
+      .judge-row { grid-template-columns: 83px minmax(80px, 1fr) 43px; gap: 6px; }
+      .judge-axis { margin-left: 90px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside aria-label="Navigation und Filter">
+      <div class="brand">
+        <div class="brand-mark">T</div>
+        <span>Tanzturnier<br>Auswertung</span>
+      </div>
+
+      <nav class="nav" aria-label="Dashboard-Navigation">
+        <button class="nav-item active" type="button" data-page-target="overview" aria-current="page"><span class="nav-icon">▦</span>Übersicht</button>
+        <button class="nav-item" type="button" data-page-target="tournaments"><span class="nav-icon">◷</span>Turnierarchiv</button>
+        <button class="nav-item" type="button" data-page-target="points"><span class="nav-icon">↗</span>Punkte &amp; Platzierungen</button>
+      </nav>
+
+      <section class="filters" aria-label="Auswertungsfilter">
+        <h2 class="filter-title">Auswertung filtern</h2>
+        <div class="field">
+          <label>Mein Paar</label>
+          <div class="select"><span>Beispiel / Muster</span><span class="chevron">⌄</span></div>
+        </div>
+        <div class="field">
+          <label>Startgruppe</label>
+          <div class="select"><span>Hauptgruppe</span><span class="chevron">⌄</span></div>
+        </div>
+        <div class="field">
+          <label>Disziplin</label>
+          <div class="select"><span>Standard</span><span class="chevron">⌄</span></div>
+        </div>
+        <div class="field">
+          <label>Zeitraum</label>
+          <div class="date-range">
+            <div class="date-input"><span>01.01.2026</span><span class="chevron">▦</span></div>
+            <div class="date-input"><span>16.11.2026</span><span class="chevron">▦</span></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="sidebar-note">
+        <strong>Vorschau mit Demodaten</strong>
+        Die Filter sind hier beispielhaft dargestellt. In der späteren App steuern sie die gespeicherten Turnierergebnisse.
+      </div>
+    </aside>
+
+    <main>
+      <div class="topline">
+        <div class="crumb"><span>Auswertung</span><span>›</span><b id="page-crumb">Übersicht</b></div>
+        <span class="demo-badge">DASHBOARD-VORSCHAU</span>
+      </div>
+
+      <header class="heading">
+        <div>
+          <h1 id="page-title">Paaranalyse</h1>
+          <p class="subtitle" id="page-subtitle">Entwicklung und Leistung für die aktuelle Auswahl.</p>
+        </div>
+        <div class="button"><span>↧</span> Auswertung exportieren</div>
+      </header>
+
+      <nav class="tabs" role="tablist" aria-label="Auswertungsansichten" data-page-content="overview">
+        <button class="tab active" id="tab-trend" type="button" role="tab" data-tab-target="trend" aria-controls="panel-trend" aria-selected="true">Leistung über Zeit</button>
+        <button class="tab" id="tab-dance" type="button" role="tab" data-tab-target="dance" aria-controls="panel-dance" aria-selected="false">Tanzanalyse</button>
+        <button class="tab" id="tab-judges" type="button" role="tab" data-tab-target="judges" aria-controls="panel-judges" aria-selected="false">Wertungsrichter</button>
+        <button class="tab" id="tab-opponents" type="button" role="tab" data-tab-target="opponents" aria-controls="panel-opponents" aria-selected="false">Gegnerbilanz</button>
+      </nav>
+
+      <div class="scope" data-page-content="overview">
+        <span>Aktuelle Auswahl</span>
+        <span class="scope-chip">Hauptgruppe D Standard</span>
+      </div>
+
+      <section class="metrics" aria-label="Kennzahlen" data-page-content="overview">
+        <article class="card metric">
+          <div class="metric-label">Turniere im Zeitraum</div>
+          <div class="metric-value">8</div>
+          <div class="metric-foot"><span class="neutral-pill">2026</span> erfasste Turnierergebnisse</div>
+        </article>
+        <article class="card metric">
+          <div class="metric-label">Ø Platzierungs-Perzentil</div>
+          <div class="metric-value">74<span style="font-size:16px">%</span></div>
+          <div class="metric-foot">normalisiert nach Feldgröße</div>
+        </article>
+      </section>
+
+      <section class="grid-main" data-page-content="overview" aria-label="Analyseansichten">
+        <article class="card panel" id="panel-trend" role="tabpanel" aria-labelledby="tab-trend" data-tab-content="trend">
+          <div class="panel-header">
+            <div>
+              <h2>Feldgrößen-normalisierte Entwicklung</h2>
+              <p class="panel-subtitle">Platzierungs-Perzentil je Turnier · 0% = letzter, 100% = erster Platz</p>
+            </div>
+          </div>
+          <svg class="trend-chart" viewBox="0 0 720 190" role="img" aria-label="Normierte Turnierleistung steigt über acht Turniere von 62 auf 87 Prozent">
+            <g stroke="#e8edf2" stroke-width="1">
+              <line x1="48" y1="25" x2="700" y2="25"></line>
+              <line x1="48" y1="80" x2="700" y2="80"></line>
+              <line x1="48" y1="135" x2="700" y2="135"></line>
+            </g>
+            <g fill="#8794a5" font-size="10">
+              <text x="12" y="29">100%</text>
+              <text x="20" y="84">50%</text>
+              <text x="28" y="139">0%</text>
+            </g>
+            <polyline points="58,67 146,60 234,57 322,55 410,54 498,49 586,48 674,39" fill="none" stroke="#2874a6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></polyline>
+            <g fill="#2874a6" stroke="white" stroke-width="3">
+              <circle cx="58" cy="67" r="5"></circle><circle cx="146" cy="60" r="5"></circle>
+              <circle cx="234" cy="57" r="5"></circle><circle cx="322" cy="55" r="5"></circle>
+              <circle cx="410" cy="54" r="5"></circle><circle cx="498" cy="49" r="5"></circle>
+              <circle cx="586" cy="48" r="5"></circle><circle cx="674" cy="39" r="5"></circle>
+            </g>
+          </svg>
+          <div class="chart-labels"><span>Februar</span><span>April</span><span>Juni</span><span>August</span><span>Oktober</span></div>
+          <div class="callout">Jeder Punkt steht für ein Turnier. Das Perzentil macht Ergebnisse aus unterschiedlich großen Feldern vergleichbar; einzelne Rundendaten sind im Turnierarchiv einsehbar.</div>
+        </article>
+
+        <article class="card panel" id="panel-dance" role="tabpanel" aria-labelledby="tab-dance" data-tab-content="dance" hidden>
+          <div class="panel-header">
+            <div>
+              <h2>Leistung nach Tanz</h2>
+              <p class="panel-subtitle">Feldgrößen-normalisierte Platzierungen · höher ist besser</p>
+            </div>
+            <span class="more" aria-hidden="true">···</span>
+          </div>
+          <div class="dance-list">
+            <div class="dance-row">
+              <span class="dance-name">Langsamer Walzer</span>
+              <div class="bar-track"><div class="bar-fill" style="width:82%"></div></div>
+              <span class="dance-score">82%</span>
+            </div>
+            <div class="dance-row">
+              <span class="dance-name">Tango</span>
+              <div class="bar-track"><div class="bar-fill" style="width:69%"></div></div>
+              <span class="dance-score">69%</span>
+            </div>
+            <div class="dance-row">
+              <span class="dance-name">Wiener Walzer</span>
+              <div class="bar-track"><div class="bar-fill" style="width:74%"></div></div>
+              <span class="dance-score">74%</span>
+            </div>
+            <div class="dance-row">
+              <span class="dance-name">Slowfox</span>
+              <div class="bar-track"><div class="bar-fill" style="width:61%"></div></div>
+              <span class="dance-score">61%</span>
+            </div>
+            <div class="dance-row">
+              <span class="dance-name">Quickstep</span>
+              <div class="bar-track"><div class="bar-fill" style="width:78%"></div></div>
+              <span class="dance-score">78%</span>
+            </div>
+          </div>
+          <div class="chart-legend"><strong>Lesart:</strong> 100% entspricht dem besten, 0% dem letzten Platz im jeweiligen Feld.</div>
+        </article>
+
+        <article class="card panel" id="panel-judges" role="tabpanel" aria-labelledby="tab-judges" data-tab-content="judges" hidden>
+          <div class="panel-header">
+            <div>
+              <h2>Richterwertung im Panelvergleich</h2>
+              <p class="panel-subtitle">Abweichung vom Median der übrigen Richter</p>
+            </div>
+            <span class="more" aria-hidden="true">···</span>
+          </div>
+          <div class="judge-plot">
+            <div class="judge-row">
+              <span class="judge-name">A · Richter A</span>
+              <div class="diverging"><div class="left-side"></div><div class="right-side"><div class="div-bar positive" style="width:66%"></div></div></div>
+              <span class="judge-value pos">+8 Pp.</span>
+            </div>
+            <div class="judge-row">
+              <span class="judge-name">B · Richter B</span>
+              <div class="diverging"><div class="left-side"></div><div class="right-side"><div class="div-bar positive" style="width:31%"></div></div></div>
+              <span class="judge-value pos">+4 Pp.</span>
+            </div>
+            <div class="judge-row">
+              <span class="judge-name">C · Richter C</span>
+              <div class="diverging"><div class="left-side"><div class="div-bar negative" style="width:48%"></div></div><div class="right-side"></div></div>
+              <span class="judge-value neg">−6 Pp.</span>
+            </div>
+            <div class="judge-row">
+              <span class="judge-name">D · Richter D</span>
+              <div class="diverging"><div class="left-side"></div><div class="right-side"><div class="div-bar positive" style="width:16%"></div></div></div>
+              <span class="judge-value pos">+2 Pp.</span>
+            </div>
+            <div class="judge-row">
+              <span class="judge-name">E · Richter E</span>
+              <div class="diverging"><div class="left-side"><div class="div-bar negative" style="width:25%"></div></div><div class="right-side"></div></div>
+              <span class="judge-value neg">−3 Pp.</span>
+            </div>
+          </div>
+          <div class="judge-axis"><span>eher ungünstiger</span><span>0</span><span>eher günstiger</span></div>
+          <div class="callout">Relative Abweichung, <strong>kein Nachweis einer Bevorzugung</strong>. Beispiel: Richter A liegt bei diesem Paar im Mittel 8 Prozentpunkte über dem Panelvergleich (n=12 Wertungen).</div>
+        </article>
+      </section>
+
+      <section class="grid-lower" data-page-content="overview">
+        <article class="card panel" id="panel-opponents" role="tabpanel" aria-labelledby="tab-opponents" data-tab-content="opponents" hidden>
+          <div class="panel-header">
+            <div>
+              <h2>Vergleiche mit anderen Paaren</h2>
+              <p class="panel-subtitle">Endplatzierungen bei gemeinsamen Turnieren</p>
+            </div>
+            <span class="more" aria-hidden="true">···</span>
+          </div>
+          <div class="table-wrap">
+            <table class="opponents-table">
+              <thead>
+                <tr><th>Paar</th><th>Starts</th><th>Siege</th><th>Niederl.</th><th>Zuletzt</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><div class="record"><span class="avatar">LM</span><span class="opponent-name"><strong>Lena Muster / Max Beispiel</strong></span></div></td>
+                  <td>4</td><td class="win">3</td><td class="loss">1</td><td>12.10.26</td>
+                </tr>
+                <tr>
+                  <td><div class="record"><span class="avatar">AS</span><span class="opponent-name"><strong>Anna Beispiel / Tom Muster</strong></span></div></td>
+                  <td>3</td><td class="win">1</td><td class="loss">2</td><td>21.09.26</td>
+                </tr>
+                <tr>
+                  <td><div class="record"><span class="avatar">KB</span><span class="opponent-name"><strong>Kira Beispiel / Paul Muster</strong></span></div></td>
+                  <td>2</td><td class="win">2</td><td class="loss">0</td><td>30.08.26</td>
+                </tr>
+                <tr>
+                  <td><div class="record"><span class="avatar">JS</span><span class="opponent-name"><strong>Jana Muster / Erik Beispiel</strong></span></div></td>
+                  <td>2</td><td class="win">0</td><td class="loss">2</td><td>16.08.26</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <section class="grid-lower" data-page-content="tournaments" hidden>
+        <article class="card panel">
+          <div class="panel-header">
+            <div>
+              <h2>Turnierarchiv</h2>
+              <p class="panel-subtitle">Jüngste Ergebnisse im ausgewählten Zeitraum</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Turnier</th><th>Platz</th><th>Feld</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Herbstpokal</strong><span class="subcell">12.10.2026 · Norderstedt</span></td>
+                  <td><span class="event-place">1.</span></td><td>8</td>
+                </tr>
+                <tr>
+                  <td><strong>Turnier am Park</strong><span class="subcell">21.09.2026 · Hannover</span></td>
+                  <td><span class="event-place silver">2.</span></td><td>11</td>
+                </tr>
+                <tr>
+                  <td><strong>Sommerturnier</strong><span class="subcell">30.08.2026 · Bremen</span></td>
+                  <td><span class="event-place bronze">3.</span></td><td>9</td>
+                </tr>
+                <tr>
+                  <td><strong>Stadtpokal</strong><span class="subcell">16.08.2026 · Celle</span></td>
+                  <td><span class="event-place silver">2.</span></td><td>7</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="card panel archive-details">
+          <div class="panel-header">
+            <div>
+              <h2>Rundendetails · Herbstpokal</h2>
+              <p class="panel-subtitle">12.10.2026 · Norderstedt · Hauptgruppe D Standard</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Runde</th><th>Kreuze</th><th>W</th><th>T</th><th>WW</th><th>SF</th><th>QS</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><strong>Vorrunde</strong></td><td class="cross-cell">24 / 35</td><td>6/7</td><td>5/7</td><td>5/7</td><td>4/7</td><td>4/7</td></tr>
+                <tr><td><strong>Endrunde</strong></td><td>—</td><td>1.</td><td>1.</td><td>2.</td><td>2.</td><td>1.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout">Kreuze beziehen sich auf die Vorrunde. W = Langsamer Walzer, T = Tango, WW = Wiener Walzer, SF = Slowfox, QS = Quickstep. Die Endrunde zeigt die Einzelplatzierungen pro Tanz; Richterdetails stehen ausschließlich in der Richteransicht.</div>
+        </article>
+      </section>
+
+      <section data-page-content="points" hidden>
+        <p class="page-intro">Erfasste Punkt- und Platzierungswerte pro Turnier. Diese Seite zeigt keine Aufstiegsprognose und prüft nicht, ob Voraussetzungen erfüllt sind.</p>
+        <section class="metrics points-summary" aria-label="Gespeicherte Punktwerte">
+          <article class="card metric">
+            <div class="metric-label">Gespeicherte Aufstiegspunkte</div>
+            <div class="metric-value">128</div>
+            <div class="metric-foot">Demowert aus den aufgeführten Turnieren</div>
+          </article>
+          <article class="card metric">
+            <div class="metric-label">Erfasste Platzierungen</div>
+            <div class="metric-value">6</div>
+            <div class="metric-foot">ohne Aussage zur Regelanrechnung</div>
+          </article>
+        </section>
+        <article class="card panel">
+          <div class="panel-header">
+            <div>
+              <h2>Punkte nach Turnier</h2>
+              <p class="panel-subtitle">Beispieldaten · gespeicherte Punktwerte je Turnier</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="points-list">
+              <thead><tr><th>Turnier</th><th>Datum</th><th>Gespeicherte Punkte</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Herbstpokal</strong></td><td>12.10.2026</td><td>24</td></tr>
+                <tr><td><strong>Turnier am Park</strong></td><td>21.09.2026</td><td>22</td></tr>
+                <tr><td><strong>Sommerturnier</strong></td><td>30.08.2026</td><td>22</td></tr>
+                <tr><td><strong>Stadtpokal</strong></td><td>16.08.2026</td><td>20</td></tr>
+                <tr><td><strong>Frühjahrscup</strong></td><td>14.06.2026</td><td>20</td></tr>
+                <tr><td><strong>Pokal des Nordens</strong></td><td>19.04.2026</td><td>20</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout"><strong>Wichtig:</strong> Alle Punktwerte sind fiktive Platzhalter. In der späteren Anwendung werden nur eindeutig aus den Quellen gelesene Rohwerte angezeigt; fehlende Werte bleiben unbekannt.</div>
+        </article>
+      </section>
+
+      <div class="bottom-note">
+        <span>ⓘ</span>
+        <span><b>Demonstrationsansicht:</b> Alle Namen, Kennzahlen und Turniere auf dieser Seite sind Beispieldaten. Aufstiegsprognose und Hochrechnung sind in dieser Vorschau bewusst nicht enthalten.</span>
+      </div>
+    </main>
+  </div>
+  <script>
+    const pageDetails = {
+      overview: {
+        crumb: "Übersicht",
+        title: "Paaranalyse",
+        subtitle: "Entwicklung und Leistung für die aktuelle Auswahl."
+      },
+      tournaments: {
+        crumb: "Turnierarchiv",
+        title: "Turnierarchiv",
+        subtitle: "Ergebnisse einzelner Turniere mit Rundendetails."
+      },
+      points: {
+        crumb: "Punkte & Platzierungen",
+        title: "Punkte & Platzierungen",
+        subtitle: "Gespeicherte Einzelwerte ohne Aufstiegsprognose."
+      }
+    };
+
+    let activeTab = "trend";
+    const pageButtons = document.querySelectorAll("[data-page-target]");
+    const tabButtons = document.querySelectorAll("[data-tab-target]");
+
+    function activateTab(tabName) {
+      activeTab = tabName;
+      document.querySelectorAll("[data-tab-content]").forEach((panel) => {
+        panel.hidden = panel.dataset.tabContent !== tabName;
+      });
+      tabButtons.forEach((button) => {
+        const selected = button.dataset.tabTarget === tabName;
+        button.classList.toggle("active", selected);
+        button.setAttribute("aria-selected", String(selected));
+        button.tabIndex = selected ? 0 : -1;
+      });
+    }
+
+    function activatePage(pageName) {
+      document.querySelectorAll("[data-page-content]").forEach((view) => {
+        view.hidden = view.dataset.pageContent !== pageName;
+      });
+      pageButtons.forEach((button) => {
+        const selected = button.dataset.pageTarget === pageName;
+        button.classList.toggle("active", selected);
+        if (selected) {
+          button.setAttribute("aria-current", "page");
+        } else {
+          button.removeAttribute("aria-current");
+        }
+      });
+
+      const details = pageDetails[pageName];
+      document.querySelector("#page-crumb").textContent = details.crumb;
+      document.querySelector("#page-title").textContent = details.title;
+      document.querySelector("#page-subtitle").textContent = details.subtitle;
+      if (pageName === "overview") activateTab(activeTab);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    pageButtons.forEach((button) => {
+      button.addEventListener("click", () => activatePage(button.dataset.pageTarget));
+    });
+    tabButtons.forEach((button) => {
+      button.addEventListener("click", () => activateTab(button.dataset.tabTarget));
+      button.addEventListener("keydown", (event) => {
+        if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+        event.preventDefault();
+        const buttons = Array.from(tabButtons);
+        const step = event.key === "ArrowRight" ? 1 : -1;
+        const next = (buttons.indexOf(button) + step + buttons.length) % buttons.length;
+        buttons[next].focus();
+        activateTab(buttons[next].dataset.tabTarget);
+      });
+    });
+  </script>
+</body>
+</html>

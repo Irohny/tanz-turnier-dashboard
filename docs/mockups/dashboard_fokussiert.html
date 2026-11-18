@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Turnierblick – fokussierter Dashboard-Entwurf</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1d2928;
+      --muted: #647570;
+      --paper: #f5f6f1;
+      --white: #fff;
+      --line: #e2e8e2;
+      --green: #245c4b;
+      --mint: #deeee4;
+      --orange: #bf603e;
+      --blue: #386eaa;
+      --red: #bd554d;
+      --shadow: 0 8px 26px rgba(34, 55, 45, .045);
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    button, select, input { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-visible { outline: 3px solid #e6a76f; outline-offset: 3px; }
+    .layout { display: grid; grid-template-columns: 248px minmax(0, 1fr); min-height: 100vh; }
+    .sidebar { min-width: 0; background: #193b32; color: #eaf3eb; padding: 29px 18px; display: flex; flex-direction: column; gap: 29px; }
+    .brand { display: flex; align-items: center; gap: 11px; padding: 0 9px; font-size: 19px; font-weight: 750; letter-spacing: -.5px; }
+    .brand-mark { width: 35px; height: 35px; display: grid; place-items: center; background: #d7eddd; color: #214f40; border-radius: 11px 11px 11px 3px; font-size: 20px; font-family: Georgia, serif; }
+    .side-label { margin: 0 10px 9px; color: #aec8bb; font-size: 10px; font-weight: 750; letter-spacing: .13em; text-transform: uppercase; }
+    .nav { display: grid; gap: 3px; }
+    .nav button { width: 100%; text-align: left; border: 0; border-radius: 9px; background: transparent; color: #d3e2d9; padding: 10px 11px; display: flex; align-items: center; gap: 12px; font-weight: 550; }
+    .nav button:hover { background: #285447; }
+    .nav button[aria-current="page"] { background: #d8ebdd; color: #1b4537; font-weight: 750; }
+    .nav-icon { display: inline-grid; place-items: center; width: 20px; font-size: 17px; }
+    .sidebar-foot { margin-top: auto; padding: 15px 11px 0; border-top: 1px solid #3c6154; color: #b6cfc0; font-size: 12px; }
+    main { min-width: 0; padding: 34px clamp(22px, 4vw, 66px) 65px; }
+    .content { width: min(1190px, 100%); margin: 0 auto; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; color: var(--muted); font-size: 12px; }
+    .eyebrow { text-transform: uppercase; font-size: 10px; font-weight: 800; letter-spacing: .13em; color: #648276; }
+    .demo { border: 1px solid #d5e0d7; border-radius: 30px; background: #edf4ed; padding: 5px 10px; color: #426654; font-size: 11px; font-weight: 700; white-space: nowrap; }
+    .heading { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin: 34px 0 21px; }
+    h1 { font-family: Georgia, "Times New Roman", serif; letter-spacing: -1.5px; font-size: clamp(32px, 3.7vw, 43px); line-height: 1.08; font-weight: 500; margin: 6px 0 9px; }
+    h2 { font-size: 18px; line-height: 1.25; letter-spacing: -.3px; margin: 0; }
+    h3 { font-size: 15px; margin: 0; }
+    p { margin: 0; }
+    .subtitle, .muted { color: var(--muted); }
+    .subtitle { max-width: 650px; }
+    .scope { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+    .chip { display: inline-flex; gap: 6px; align-items: center; border: 1px solid #dce5dc; background: #fff; padding: 6px 10px; border-radius: 7px; color: #415a50; font-size: 12px; font-weight: 650; }
+    .chip strong { color: #233c32; }
+    details.filters { position: relative; }
+    details.filters > summary, .text-button { cursor: pointer; color: var(--green); font-size: 12px; font-weight: 750; }
+    details.filters > summary { list-style: none; padding: 6px 4px; }
+    details.filters > summary::-webkit-details-marker { display: none; }
+    .filter-panel { position: absolute; z-index: 4; width: min(370px, 88vw); top: 35px; left: 0; padding: 18px; border: 1px solid var(--line); background: white; border-radius: 12px; box-shadow: 0 18px 40px #1c392325; }
+    .filter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0; }
+    label { display: block; color: #536b60; font-size: 12px; font-weight: 700; }
+    input, select { width: 100%; margin-top: 5px; padding: 9px 10px; border: 1px solid #d9e3da; border-radius: 7px; background: #fff; color: var(--ink); }
+    input:disabled, select:disabled { opacity: 1; background: #f8faf7; color: #62746a; }
+    .small { font-size: 12px; }
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 17px; }
+    .card { min-width: 0; border: 1px solid var(--line); border-radius: 13px; background: var(--white); box-shadow: var(--shadow); }
+    .metric { padding: 19px 21px; min-height: 125px; }
+    .metric-label { color: var(--muted); font-size: 12px; font-weight: 700; }
+    .metric-value { font-family: Georgia, serif; font-size: 32px; letter-spacing: -.8px; line-height: 1.15; margin: 11px 0 5px; }
+    .metric-foot { font-size: 12px; color: var(--muted); }
+    .metric-foot b { color: var(--green); }
+    .panel { padding: 23px; }
+    .panel-head { display: flex; align-items: start; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+    .panel-head p { margin-top: 5px; color: var(--muted); font-size: 12px; }
+    .grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(275px, 1fr); gap: 16px; }
+    .section-gap { margin-top: 16px; }
+    .link-button { padding: 0; border: 0; background: none; color: var(--green); font-size: 12px; font-weight: 750; text-align: left; }
+    .link-button:hover { text-decoration: underline; }
+    .chart { width: 100%; display: block; overflow: visible; }
+    .chart text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #74867a; font-size: 11px; }
+    .chart-caption { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; color: var(--muted); font-size: 12px; margin-top: 10px; }
+    .event-list { display: grid; }
+    .event-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; border-top: 1px solid #eef2ed; padding: 13px 0; }
+    .event-row:first-child { border-top: 0; padding-top: 0; }
+    .event-name { font-weight: 700; font-size: 13px; }
+    .event-meta { color: var(--muted); font-size: 12px; }
+    .place { min-width: 50px; border-radius: 8px; background: #eff5ef; padding: 6px 9px; text-align: center; font-weight: 750; color: var(--green); }
+    .info { background: #f4f8f3; border-left: 3px solid #9dbdaa; color: #4a6656; border-radius: 3px 8px 8px 3px; padding: 11px 13px; font-size: 12px; }
+    .warn { background: #fbf5e9; border-left-color: #dbb25e; color: #735a2d; }
+    .stack { display: grid; gap: 16px; }
+    .toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 17px; }
+    .pill-group { display: flex; flex-wrap: wrap; gap: 7px; }
+    .pill-group label { display: inline-flex; align-items: center; gap: 6px; border: 1px solid #dce7dc; border-radius: 30px; background: #f7faf6; padding: 6px 10px; color: #416052; font-weight: 650; }
+    .pill-group input { width: auto; margin: 0; accent-color: var(--green); }
+    .dance-rows { display: grid; gap: 6px; }
+    .dance-row { display: grid; grid-template-columns: 140px minmax(120px, 1fr); align-items: center; gap: 10px; border: 1px solid transparent; background: transparent; border-radius: 9px; padding: 8px; text-align: left; color: var(--ink); }
+    .dance-row:hover, .dance-row[aria-pressed="true"] { border-color: #d7e8d9; background: #f5faf5; }
+    .dance-name { font-size: 13px; font-weight: 700; }
+    .bars { display: grid; gap: 4px; }
+    .bar-line { display: grid; grid-template-columns: minmax(60px, 1fr) 45px 40px; align-items: center; gap: 8px; }
+    .bar-track { height: 8px; border-radius: 8px; background: #edf2ec; overflow: hidden; }
+    .bar { height: 100%; border-radius: inherit; background: #3a8067; }
+    .bar.class-c { background: #d68c66; }
+    .dance-value { font-weight: 750; font-size: 12px; text-align: right; }
+    .dance-n { color: var(--muted); font-size: 11px; text-align: right; }
+    .legend { display: flex; gap: 15px; flex-wrap: wrap; color: var(--muted); font-size: 12px; margin: 14px 0 0; }
+    .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #3a8067; margin-right: 5px; }
+    .dot.orange { background: #d68c66; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; text-align: left; font-size: 13px; }
+    th { color: #6a7e72; font-weight: 700; font-size: 11px; padding: 10px 12px; border-bottom: 1px solid #e3ebe3; white-space: nowrap; }
+    td { padding: 12px; border-bottom: 1px solid #eef2ed; vertical-align: middle; }
+    tbody tr:last-child td { border-bottom: 0; }
+    .num { text-align: right; white-space: nowrap; }
+    .good { color: #277451; font-weight: 750; }
+    .negative { color: var(--red); font-weight: 750; }
+    .positive { color: var(--blue); font-weight: 750; }
+    .badge { display: inline-block; border-radius: 30px; padding: 3px 8px; font-weight: 700; font-size: 11px; background: #e9f4eb; color: #357053; white-space: nowrap; }
+    .badge.neutral { background: #f2f4f1; color: #65756a; }
+    details.evidence { border-top: 1px solid #e8eee8; margin-top: 18px; padding-top: 14px; }
+    details.evidence summary { color: var(--green); cursor: pointer; font-size: 12px; font-weight: 750; }
+    details.evidence > div { margin-top: 12px; }
+    .tabs { display: flex; gap: 6px; flex-wrap: wrap; border-bottom: 1px solid var(--line); margin-bottom: 17px; }
+    .tabs button { background: transparent; border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px; padding: 9px 12px; color: #657a6e; font-weight: 700; font-size: 12px; }
+    .tabs button[aria-selected="true"] { color: var(--green); border-bottom-color: var(--green); }
+    .matrix td:not(:first-child), .matrix th:not(:first-child) { text-align: center; }
+    .matrix td { border: 3px solid white; }
+    .heat-best { background: #bbf7d0; }
+    .heat-mid { background: #dce0cd; }
+    .heat-low { background: #fecaca; }
+    .heat-two-thirds { background: #d1e8ce; }
+    .heat-one-third { background: #e8d9cc; }
+    .select-line { max-width: 440px; margin-bottom: 18px; }
+    .form-grid { display: grid; gap: 16px; max-width: 600px; }
+    .button-primary { border: 0; border-radius: 8px; background: var(--green); color: white; padding: 11px 16px; font-weight: 700; }
+    .footer-note { color: #798b7f; font-size: 11px; margin-top: 26px; }
+    .concept { margin-top: 18px; }
+    .concept p, .concept li { color: #52695d; font-size: 12px; }
+    .concept ul { padding-left: 18px; margin: 8px 0; }
+    @media (max-width: 850px) {
+      .layout { grid-template-columns: minmax(0, 1fr); }
+      .sidebar { padding: 15px 20px; gap: 15px; }
+      .brand { padding: 0; }
+      .side-label, .sidebar-foot { display: none; }
+      .nav { display: flex; overflow-x: auto; padding-bottom: 2px; }
+      .nav button { width: auto; white-space: nowrap; padding: 8px 10px; font-size: 12px; }
+      .nav-icon { display: none; }
+      main { padding: 25px 20px 50px; }
+      .heading { margin-top: 26px; }
+      .grid { grid-template-columns: minmax(0, 1fr); }
+    }
+    @media (max-width: 560px) {
+      .cards { grid-template-columns: 1fr 1fr; }
+      .cards .metric:last-child { grid-column: 1 / -1; }
+      .metric { min-height: 100px; padding: 16px; }
+      .metric-value { font-size: 27px; }
+      .panel { padding: 17px; }
+      .dance-row { grid-template-columns: 105px minmax(75px, 1fr); gap: 6px; }
+      .filter-panel { position: fixed; top: 100px; left: 5vw; width: 90vw; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-mark">T</span><span>Turnierblick</span></div>
+      <div>
+        <p class="side-label">Auswertung</p>
+        <nav class="nav" aria-label="Dashboard-Navigation">
+          <button type="button" data-page="overview" aria-current="page"><span class="nav-icon">◫</span> Überblick</button>
+          <button type="button" data-page="dance"><span class="nav-icon">◒</span> Tänze</button>
+          <button type="button" data-page="judges"><span class="nav-icon">◉</span> Wertungsrichter</button>
+          <button type="button" data-page="opponents"><span class="nav-icon">♧</span> Gegnerbilanz</button>
+          <button type="button" data-page="events"><span class="nav-icon">▤</span> Turniere</button>
+          <button type="button" data-page="points"><span class="nav-icon">◇</span> Punkte &amp; Plätze</button>
+          <button type="button" data-page="import"><span class="nav-icon">＋</span> Turnier erfassen</button>
+        </nav>
+      </div>
+      <div class="sidebar-foot">Ein klarer Blick auf eure Ergebnisse.<br>Entwurf mit fiktiven Daten.</div>
+    </aside>
+
+    <main>
+      <div class="content">
+        <div class="topbar"><span>EUER TURNIERTAGEBUCH</span><span class="demo">INTERAKTIVER ENTWURF · BEISPIELDATEN</span></div>
+        <header class="heading">
+          <div>
+            <span class="eyebrow" id="page-kicker">Paaranalyse</span>
+            <h1 id="page-title">Eure Entwicklung.</h1>
+            <p class="subtitle" id="page-subtitle">Das Wichtigste auf einen Blick – Details nur, wenn ihr sie braucht.</p>
+          </div>
+        </header>
+
+        <div class="scope" id="scope">
+          <span class="chip"><span>◉</span> <strong>Ada Muster / Ben Beispiel</strong></span>
+          <span class="chip">Standard · Hauptgruppe</span>
+          <span class="chip">2026 · 4 Turniere</span>
+          <details class="filters">
+            <summary>Filter &amp; Paar ändern ⌄</summary>
+            <div class="filter-panel">
+              <h3>Auswahl</h3>
+              <p class="muted small">Schematische Filter im Entwurf; sie verändern die Beispieldaten nicht.</p>
+              <div class="filter-grid">
+                <label>Mein Paar<select disabled><option>Ada Muster / Ben Beispiel</option></select></label>
+                <label>Startgruppe<select disabled><option>Hauptgruppe</option></select></label>
+                <label>Disziplin<select disabled><option>Standard</option></select></label>
+                <label>Zeitraum<select disabled><option>2026</option></select></label>
+              </div>
+              <p class="muted small">Turniere werden direkt im Archiv ausgewählt. Startklassen lassen sich in der Tanzanalyse vergleichen.</p>
+            </div>
+          </details>
+        </div>
+
+        <section data-view="overview">
+          <div class="cards">
+            <article class="card metric"><div class="metric-label">Turniere</div><div class="metric-value">4</div><div class="metric-foot">im gewählten Zeitraum</div></article>
+            <article class="card metric"><div class="metric-label">Ø normierter Platz</div><div class="metric-value">83<span class="small"> %</span></div><div class="metric-foot"><b>4 von 4</b> Turnieren auswertbar</div></article>
+            <article class="card metric"><div class="metric-label">Letztes Ergebnis</div><div class="metric-value">1. <span class="small muted">/ 8</span></div><div class="metric-foot">12.10. · Norderstedt</div></article>
+          </div>
+          <div class="grid">
+            <article class="card panel">
+              <div class="panel-head"><div><h2>Leistung über Zeit</h2><p>Platzierung im Verhältnis zur Feldgröße</p></div><span class="badge neutral">4 Turniere</span></div>
+              <svg class="chart" viewBox="0 0 620 205" role="img" aria-label="Normierter Platz über vier Turniere: 86, 78, 67 und 100 Prozent.">
+                <g stroke="#e7eee7" stroke-width="1"><line x1="45" y1="25" x2="600" y2="25"/><line x1="45" y1="85" x2="600" y2="85"/><line x1="45" y1="145" x2="600" y2="145"/></g>
+                <text x="0" y="29">100 %</text><text x="10" y="89">50 %</text><text x="19" y="149">0 %</text>
+                <path d="M75 42 L245 51 L415 65 L585 25" fill="none" stroke="#367e62" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                <g fill="#367e62" stroke="white" stroke-width="3"><circle cx="75" cy="42" r="6"/><circle cx="245" cy="51" r="6"/><circle cx="415" cy="65" r="6"/><circle cx="585" cy="25" r="6"/></g>
+                <g text-anchor="middle"><text x="75" y="172">01.03.</text><text x="75" y="187">Bremen</text><text x="245" y="172">05.06.</text><text x="245" y="187">Hannover</text><text x="415" y="172">30.08.</text><text x="415" y="187">Celle</text><text x="585" y="172">12.10.</text><text x="585" y="187">Norderstedt</text></g>
+              </svg>
+              <div class="chart-caption"><span>100 % = erster · 0 % = letzter Platz</span><span>Höher ist besser</span></div>
+              <details class="evidence"><summary>Ergebnisse &amp; Quellen ansehen</summary><div class="table-wrap"><table><thead><tr><th>Turnier · Datum · Ort</th><th>Platz / Feld</th><th>Normiert</th><th>Quelle</th></tr></thead><tbody><tr><td>Frühjahrscup · 01.03. · Bremen</td><td>2 / 8</td><td>86 %</td><td>Beispiel</td></tr><tr><td>Parkpokal · 05.06. · Hannover</td><td>3 / 10</td><td>78 %</td><td>Beispiel</td></tr><tr><td>Stadtpokal · 30.08. · Celle</td><td>4 / 10</td><td>67 %</td><td>Beispiel</td></tr><tr><td>Herbstpokal · 12.10. · Norderstedt</td><td>1 / 8</td><td>100 %</td><td>Beispiel</td></tr></tbody></table></div></details>
+            </article>
+            <article class="card panel">
+              <div class="panel-head"><div><h2>Zuletzt getanzt</h2><p>Die jüngsten Turniere</p></div><button class="link-button" type="button" data-go="events">Alle ansehen →</button></div>
+              <div class="event-list">
+                <div class="event-row"><div><div class="event-name">Herbstpokal</div><div class="event-meta">12.10. · Norderstedt · Hgr. C</div></div><span class="place">1. / 8</span></div>
+                <div class="event-row"><div><div class="event-name">Stadtpokal</div><div class="event-meta">30.08. · Celle · Hgr. C</div></div><span class="place">4. / 10</span></div>
+                <div class="event-row"><div><div class="event-name">Parkpokal</div><div class="event-meta">05.06. · Hannover · Hgr. D</div></div><span class="place">3. / 10</span></div>
+              </div>
+              <div class="info">Mehr zu Runden, Kreuzen und Einzelwertungen findet ihr beim jeweiligen Turnier.</div>
+            </article>
+          </div>
+        </section>
+
+        <section data-view="dance" hidden>
+          <div class="stack">
+            <article class="card panel">
+              <div class="panel-head"><div><h2>Platzierungen nach Tanz</h2><p>Feldgrößen-normalisiert · höher ist besser · Balken für den Verlauf auswählen</p></div></div>
+              <div class="toolbar"><span class="small muted">Startklassen vergleichen</span><div class="pill-group" aria-label="Startklassen vergleichen"><label><input type="checkbox" value="D" checked> Hgr. D</label><label><input type="checkbox" value="C" checked> Hgr. C</label></div></div>
+              <div id="dance-bars" class="dance-rows"></div>
+              <div class="legend"><span data-class-legend="D"><span class="dot"></span>Hgr. D</span><span data-class-legend="C"><span class="dot orange"></span>Hgr. C</span><span>n = auswertbare Tanzplatzierungen</span></div>
+              <div id="dance-empty" class="info section-gap" hidden>Wählt mindestens eine Startklasse aus.</div>
+              <details class="evidence"><summary>Belege zu Tanzplatzierungen</summary><div id="dance-evidence" class="table-wrap"></div></details>
+            </article>
+            <article class="card panel" id="dance-history">
+              <div class="panel-head"><div><h2 id="history-title">Verlauf · Langsamer Walzer</h2><p>Einzelne Tanzplatzierungen · Datum, Ort und Runde</p></div></div>
+              <svg id="history-chart" class="chart" viewBox="0 0 620 200" role="img"></svg>
+              <div class="chart-caption"><span>100 % = erster · 0 % = letzter Platz</span><span>Farben wie im Klassenvergleich</span></div>
+              <div id="history-table" class="table-wrap"></div>
+            </article>
+            <article class="card panel">
+              <div class="panel-head"><div><h2>Kreuzraten nach Runde</h2><p>Getrennt von den Tanzplatzierungen · nur Runden mit bekanntem Nenner</p></div></div>
+              <div class="table-wrap"><table><thead><tr><th>Runde</th><th class="num">Ø Kreuzrate</th><th class="num">Runden</th></tr></thead><tbody><tr><td>Vorrunde</td><td class="num">75 %</td><td class="num">n = 1</td></tr></tbody></table></div>
+              <p class="muted small section-gap">Nur ein Beispiel mit gültiger Stimmenzahl; eine fehlende Zahl wird nicht geschätzt.</p>
+            </article>
+          </div>
+        </section>
+
+        <section data-view="judges" hidden>
+          <article class="card panel">
+            <div class="panel-head"><div><h2>Im Vergleich zum übrigen Panel</h2><p>Relative Tendenz in Prozentpunkten · positiv = günstiger</p></div></div>
+            <div class="table-wrap"><table><thead><tr><th>Wertungsrichter</th><th class="num">Turniere</th><th class="num">Wertungen</th><th class="num">Vergleiche</th><th class="num">Tendenz</th></tr></thead><tbody><tr><td><strong>Alex Richter</strong></td><td class="num">3</td><td class="num">12</td><td class="num">8</td><td class="num positive">+8,0 pp</td></tr><tr><td><strong>Kim Richter</strong></td><td class="num">2</td><td class="num">7</td><td class="num">6</td><td class="num negative">−4,0 pp</td></tr><tr><td><strong>Sam Richter</strong></td><td class="num">1</td><td class="num">3</td><td class="num">3</td><td class="num positive">+2,0 pp</td></tr></tbody></table></div>
+            <div class="info warn section-gap">Weniger als 5 Vergleiche: geringe Aussagekraft. Die Tendenz ist kein Nachweis einer Bevorzugung.</div>
+            <details class="evidence"><summary>Berechnung &amp; Beispielbelege</summary><div class="stack"><p class="muted small">Abweichung vom Median der übrigen Richter: Finalplätze nach Feldgröße, Vorrundenkreuze nach möglichen Kreuzen normiert. Ohne bekannten Nenner kein Vergleich.</p><div class="table-wrap"><table><thead><tr><th>Richter</th><th>Turnier · Runde · Tanz</th><th>Wertung / Panelmedian</th><th>Quelle</th></tr></thead><tbody><tr><td>Alex Richter</td><td>Herbstpokal · Finale · Tango</td><td>100 % / 86 %</td><td>Beispiel</td></tr></tbody></table></div></div></details>
+          </article>
+        </section>
+
+        <section data-view="opponents" hidden>
+          <article class="card panel">
+            <div class="panel-head"><div><h2>Gemeinsame Turniere</h2><p>Vergleich der belegten Endplatzierungen · keine Vorhersage</p></div></div>
+            <div class="table-wrap"><table><thead><tr><th>Paar / Verein</th><th class="num">Turniere</th><th class="num">Vor euch</th><th class="num">Hinter euch</th><th class="num">Gleich</th><th class="num">Unbekannt</th><th>Zuletzt</th></tr></thead><tbody><tr><td><strong>Lena Muster / Max Beispiel</strong><br><span class="muted small">TSC Beispiel</span></td><td class="num">4</td><td class="num">1</td><td class="num">2</td><td class="num">1</td><td class="num">0</td><td>12.10.2026</td></tr><tr><td><strong>Anna Beispiel / Tom Muster</strong><br><span class="muted small">Tanzclub Muster</span></td><td class="num">2</td><td class="num">1</td><td class="num">0</td><td class="num">0</td><td class="num">1</td><td>30.08.2026</td></tr></tbody></table></div>
+            <details class="evidence"><summary>Begegnungen &amp; Quellen ansehen</summary><div class="table-wrap"><table><thead><tr><th>Turnier</th><th>Paar</th><th>Eigener Platz</th><th>Gegner</th><th>Ergebnis</th><th>Quelle</th></tr></thead><tbody><tr><td>Herbstpokal</td><td>Lena Muster / Max Beispiel</td><td>1.</td><td>2.</td><td>Hinter euch</td><td>Beispiel</td></tr></tbody></table></div></details>
+            <p class="muted small section-gap">Gleiche Platzbereiche zählen als Gleichstand; fehlende oder überlappende Angaben bleiben unbekannt.</p>
+          </article>
+        </section>
+
+        <section data-view="events" hidden>
+          <div class="stack">
+            <article class="card panel">
+              <div class="panel-head"><div><h2>Turnier auswählen</h2><p>Ergebnisse im gewählten Zeitraum</p></div></div>
+              <label class="select-line">Turnier
+                <select id="event-select">
+                  <option value="latest">Herbstpokal · 12.10.2026 · Norderstedt</option>
+                  <option value="older">Stadtpokal · 30.08.2026 · Celle</option>
+                </select>
+              </label>
+              <div class="info">Die Auswahl ersetzt eine zweite, redundante Turnierliste. Weitere Turniere sind im Entwurf nicht ausgeführt.</div>
+            </article>
+            <div id="event-latest" class="stack">
+              <article class="card panel">
+                <div class="panel-head"><div><h2>Herbstpokal</h2><p>12.10.2026 · Norderstedt · Hauptgruppe C Standard</p></div><span class="badge">1. Platz / 8 Paare</span></div>
+                <div class="table-wrap"><table><thead><tr><th>Runde</th><th>Kreuze</th><th>Quote</th><th>Ergebnis</th><th>Abstand zur Grenze</th><th>Platz / Feld</th></tr></thead><tbody><tr><td><strong>Vorrunde</strong></td><td>9 / 12</td><td>75 %</td><td><span class="badge">Weiter</span></td><td>+2 · Grenze 7</td><td>—</td></tr><tr><td><strong>Finale</strong></td><td>—</td><td>—</td><td><span class="badge neutral">Endrunde</span></td><td>nicht anwendbar</td><td>1. / 8</td></tr></tbody></table></div>
+                <details class="evidence"><summary>Weitere Rundendaten &amp; Quellen</summary><div><p class="muted small">Finale: normierter Platz 100 %. Tanzplätze: Langsamer Walzer 1., Tango 1., Quickstep 2. Die Weiterkommensgrenze ist im Beispiel vollständig belegt. Quellen: Beispielwerte.</p></div></details>
+              </article>
+              <article class="card panel">
+                <div class="tabs" role="tablist" aria-label="Wertungsdetails">
+                  <button type="button" role="tab" id="cross-tab" aria-controls="cross-panel" aria-selected="true" data-detail-tab="cross">Richterkreuze</button>
+                  <button type="button" role="tab" id="marks-tab" aria-controls="marks-panel" aria-selected="false" data-detail-tab="marks">Einzelwertungen</button>
+                </div>
+                <div id="cross-panel" role="tabpanel" aria-labelledby="cross-tab" data-detail="cross">
+                  <div class="panel-head"><div><h2>Aggregierte Richterkreuze</h2><p>Runden in den Zeilen · Wertungsrichter in den Spalten</p></div></div>
+                  <div class="table-wrap"><table class="matrix"><thead><tr><th>Runde</th><th>Alex Richter</th><th>Kim Richter</th><th>Sam Richter</th><th>Lou Richter</th></tr></thead><tbody><tr><td><strong>Vorrunde</strong></td><td class="heat-best">3</td><td class="heat-two-thirds">2</td><td class="heat-best">3</td><td class="heat-one-third">1</td></tr></tbody></table></div>
+                  <p class="muted small section-gap">Anteil an möglichen Kreuzen: Grün höher, Rot niedriger. „—“ = kein Wert; ohne bekannten Nenner bleibt die Zelle ungefärbt.</p>
+                </div>
+                <div id="marks-panel" role="tabpanel" aria-labelledby="marks-tab" data-detail="marks" hidden>
+                  <div class="panel-head"><div><h2>Finale · Einzelwertungen</h2><p>Wertungsrichter in den Zeilen · Tänze in den Spalten</p></div></div>
+                  <div class="table-wrap"><table class="matrix"><thead><tr><th>Wertungsrichter</th><th>Langsamer Walzer</th><th>Tango</th><th>Quickstep</th></tr></thead><tbody><tr><td>Alex Richter</td><td class="heat-best">1.</td><td class="heat-best">1.</td><td class="heat-mid">2.</td></tr><tr><td>Kim Richter</td><td class="heat-mid">2.</td><td class="heat-mid">2.</td><td class="heat-low">3.</td></tr><tr><td>Sam Richter</td><td class="heat-best">1.</td><td class="heat-best">1.</td><td class="heat-mid">2.</td></tr><tr><td>Lou Richter</td><td class="heat-low">3.</td><td class="heat-mid">2.</td><td class="heat-low">3.</td></tr></tbody></table></div>
+                  <p class="muted small section-gap">Grün = besserer, Rot = schlechterer Platz; fehlende Einzelwerte bleiben „—“.</p>
+                </div>
+              </article>
+            </div>
+            <div id="event-older" class="card panel" hidden><h2>Stadtpokal</h2><p class="muted section-gap">30.08.2026 · Celle · Hauptgruppe C Standard · 4. / 10</p><div class="info section-gap">Rundendetails sind für dieses Beispiel nicht ausgeführt. Fehlende Werte bleiben unbekannt.</div></div>
+          </div>
+        </section>
+
+        <section data-view="points" hidden>
+          <div class="stack">
+            <div class="info">Nur gespeicherte Quellenwerte. Aufstiegsregeln sind nicht bestätigt; deshalb keine Prognose und kein behaupteter Restbedarf.</div>
+            <article class="card panel">
+              <div class="panel-head"><div><h2>Gespeicherte Punkte</h2><p>Getrennt nach Startklasse und Disziplin · 4 Punkteinträge</p></div></div>
+              <div class="cards">
+                <div class="metric" style="background:#f5f9f4;border-radius:10px"><div class="metric-label">Hgr. D Standard</div><div class="metric-value">20</div><div class="metric-foot">2 Einträge</div></div>
+                <div class="metric" style="background:#fbf6f1;border-radius:10px"><div class="metric-label">Hgr. C Standard</div><div class="metric-value">20</div><div class="metric-foot">2 Einträge</div></div>
+              </div>
+              <div class="table-wrap"><table><thead><tr><th>Turnier · Ort</th><th>Datum</th><th>Klasse</th><th>Platz / Feld</th><th class="num">Punkte</th><th>Quelle</th></tr></thead><tbody><tr><td>Herbstpokal · Norderstedt</td><td>12.10.2026</td><td>Hgr. C Standard</td><td>1. / 8</td><td class="num">12</td><td>Beispiel</td></tr><tr><td>Stadtpokal · Celle</td><td>30.08.2026</td><td>Hgr. C Standard</td><td>4. / 10</td><td class="num">8</td><td>Beispiel</td></tr><tr><td>Parkpokal · Hannover</td><td>05.06.2026</td><td>Hgr. D Standard</td><td>3. / 10</td><td class="num">11</td><td>Beispiel</td></tr><tr><td>Frühjahrscup · Bremen</td><td>01.03.2026</td><td>Hgr. D Standard</td><td>2. / 8</td><td class="num">9</td><td>Beispiel</td></tr></tbody></table></div>
+            </article>
+          </div>
+        </section>
+
+        <section data-view="import" hidden>
+          <article class="card panel">
+            <div class="panel-head"><div><h2>Ergebnisse hinzufügen</h2><p>Link und Paar genügen. Bestehende Daten bleiben erhalten.</p></div></div>
+            <form id="import-form" class="form-grid">
+              <label>Paar für die Auswertung<input required value="Ada Muster / Ben Beispiel" autocomplete="off"></label>
+              <label>Link zur Ergebnisseite<input required type="url" placeholder="https://beispiel.de/ergebnisse/index.htm"></label>
+              <details class="evidence"><summary>Erweiterte Einstellungen</summary><div><label>Maximale Seitenanzahl<input type="number" value="500" min="1" max="2000"></label><p class="muted small section-gap">Begrenzt den Abruf. Archivpfad und JSON-Import gehören ebenfalls in die erweiterten Einstellungen der echten Anwendung.</p></div></details>
+              <div><button class="button-primary" type="submit">Ergebnisse abrufen</button></div>
+              <div class="info">Vorschau: Es wird kein Netzwerkzugriff ausgeführt und nichts gespeichert.</div>
+              <div id="import-message" class="info" role="status" hidden></div>
+            </form>
+          </article>
+        </section>
+
+        <details class="card panel concept">
+          <summary class="text-button">Konzept &amp; Abgleich mit den Anforderungen</summary>
+          <div>
+            <ul>
+              <li><strong>Bisheriges Mockup:</strong> zeigt Navigation und Trends, aber keine Importseite, Richter-Stichproben oder aktuellen Kreuz- und Einzelwertungsmatrizen; die Filter sind rein schematisch.</li>
+              <li><strong>Aktuelles Dashboard:</strong> besitzt diese Daten und Belege bereits, zeigt aber technische Archiv-/JSON-Felder dauerhaft und im Turnierarchiv Übersichtsliste und separate Auswahl nebeneinander bzw. untereinander.</li>
+              <li><strong>Entwurf:</strong> Paar und Auswertungsumfang bleiben sichtbar; Paar, Startgruppe, Disziplin und Zeitraum liegen gemeinsam hinter „Filter“. Die Turnierauswahl sitzt nur im Archiv; der Klassenvergleich erscheint nur bei Tänzen. Technische Importoptionen sind nachrangig.</li>
+              <li><strong>Erhalten:</strong> Verlauf, Tanz- und Richtertrends mit Stichproben und Belegen, Gegnerbilanz inklusive Gleichständen und unbekannten Werten, Rundendetails, beide Richtermatrizen, Punkte je Klasse sowie Import.</li>
+              <li><strong>Bewusst nicht behauptet:</strong> fehlende Werte, ungeprüfte Aufstiegsregeln, eine Aufstiegsprognose oder eine statistisch gesicherte Bevorzugung. Die Fortschrittsanzeige bleibt offen, bis die Regeln geklärt sind.</li>
+            </ul>
+            <p>Dies ist eine eigenständige Vorschau, keine Änderung der Streamlit-Anwendung. Globale Filter und Import sind als Konzept dargestellt; Navigation, Turnierauswahl, Richtermatrizen und Tanzvergleich funktionieren mit Beispieldaten.</p>
+          </div>
+        </details>
+        <p class="footer-note">Alle Personen, Turniere und Werte sind frei erfundene Beispieldaten. Kein Zugriff auf das Archiv.</p>
+      </div>
+    </main>
+  </div>
+  <script>
+    const pages = {
+      overview: ["Paaranalyse", "Eure Entwicklung.", "Das Wichtigste auf einen Blick – Details nur, wenn ihr sie braucht."],
+      dance: ["Analyse", "Eure Tänze.", "Vergleicht Tanzplatzierungen und entdeckt den Verlauf dahinter."],
+      judges: ["Analyse", "Wertungsrichter.", "Relative Tendenzen im Kontext des jeweiligen Panels."],
+      opponents: ["Analyse", "Eure Begegnungen.", "Wie ihr bei gemeinsamen Turnieren abgeschnitten habt."],
+      events: ["Turnierarchiv", "Ein Turnier im Detail.", "Runden, Kreuze und Wertungen an einem Ort."],
+      points: ["Erfasste Quellenwerte", "Punkte & Plätze.", "Gespeicherte Werte je Startklasse und Disziplin."],
+      import: ["Archiv", "Turnier erfassen.", "Eine Ergebnisseite hinzufügen und das Archiv erweitern."]
+    };
+    const navButtons = document.querySelectorAll("[data-page]");
+    function showPage(name) {
+      if (!pages[name]) return;
+      document.querySelectorAll("[data-view]").forEach(view => { view.hidden = view.dataset.view !== name; });
+      navButtons.forEach(button => {
+        if (button.dataset.page === name) button.setAttribute("aria-current", "page");
+        else button.removeAttribute("aria-current");
+      });
+      document.querySelector("#page-kicker").textContent = pages[name][0];
+      document.querySelector("#page-title").textContent = pages[name][1];
+      document.querySelector("#page-subtitle").textContent = pages[name][2];
+      document.querySelector("#scope").hidden = name === "import";
+      window.scrollTo({top: 0, behavior: "auto"});
+    }
+    navButtons.forEach(button => button.addEventListener("click", () => showPage(button.dataset.page)));
+    document.querySelectorAll("[data-go]").forEach(button => button.addEventListener("click", () => showPage(button.dataset.go)));
+
+    const dances = [
+      {name: "Langsamer Walzer", D: [2, 3], C: [4, 1]},
+      {name: "Tango", D: [3, 3], C: [3, 1]},
+      {name: "Quickstep", D: [2, 4], C: [4, 2]}
+    ];
+    const danceEvents = [
+      {date: "01.03.2026", city: "Bremen", title: "Frühjahrscup", className: "D", field: 8},
+      {date: "05.06.2026", city: "Hannover", title: "Parkpokal", className: "D", field: 10},
+      {date: "30.08.2026", city: "Celle", title: "Stadtpokal", className: "C", field: 10},
+      {date: "12.10.2026", city: "Norderstedt", title: "Herbstpokal", className: "C", field: 8}
+    ];
+    function normalized(place, field) {
+      return (field - place) / (field - 1) * 100;
+    }
+    let selectedDance = dances[0].name;
+    function selectedClasses() {
+      return [...document.querySelectorAll(".pill-group input:checked")].map(input => input.value);
+    }
+    function renderDances() {
+      const classes = selectedClasses();
+      const container = document.querySelector("#dance-bars");
+      document.querySelector("#dance-empty").hidden = classes.length > 0;
+      document.querySelector("#dance-history").hidden = classes.length === 0;
+      document.querySelectorAll("[data-class-legend]").forEach(legend => {
+        legend.hidden = !classes.includes(legend.dataset.classLegend);
+      });
+      container.innerHTML = "";
+      dances.forEach(dance => {
+        if (!classes.length) return;
+        const averages = classes.map(className => ({
+          className,
+          value: Math.round(dance[className].reduce((sum, place, index) => {
+            const event = danceEvents.filter(item => item.className === className)[index];
+            return sum + normalized(place, event.field);
+          }, 0) / dance[className].length),
+          count: dance[className].length
+        }));
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "dance-row";
+        button.setAttribute("aria-pressed", String(selectedDance === dance.name));
+        button.setAttribute("aria-label", `${dance.name}: ${averages.map(item => `Hgr. ${item.className} ${item.value} Prozent, ${item.count} Wertungen`).join("; ")}. Verlauf anzeigen.`);
+        const bars = averages.map(item => {
+          return `<span class="bar-line"><span class="bar-track"><span class="bar ${item.className === "C" ? "class-c" : ""}" style="display:block;width:${item.value}%"></span></span><span class="dance-value">${item.value} %</span><span class="dance-n">n = ${item.count}</span></span>`;
+        }).join("");
+        button.innerHTML = `<span class="dance-name">${dance.name}</span><span class="bars">${bars}</span>`;
+        button.addEventListener("click", () => { selectedDance = dance.name; renderDances(); });
+        container.appendChild(button);
+      });
+      const rows = [];
+      dances.forEach(dance => danceEvents.forEach((event, index) => {
+        if (!classes.includes(event.className)) return;
+        const place = dance[event.className][index % 2];
+        const value = Math.round(normalized(place, event.field));
+        rows.push({dance: dance.name, event, place, value});
+      }));
+      const table = entries => `<table><thead><tr><th>Turnier · Datum · Ort</th><th>Tanz</th><th>Klasse · Runde</th><th>Platz / Feld</th><th class="num">Normiert</th><th>Quelle</th></tr></thead><tbody>${entries.map(row => `<tr><td>${row.event.title}<br><span class="muted small">${row.event.date} · ${row.event.city}</span></td><td>${row.dance}</td><td>Hgr. ${row.event.className} · Finale</td><td>${row.place}. / ${row.event.field}</td><td class="num">${row.value} %</td><td>Beispiel</td></tr>`).join("")}</tbody></table>`;
+      const history = rows.filter(row => row.dance === selectedDance);
+      const chart = document.querySelector("#history-chart");
+      chart.setAttribute("aria-label", `Zeitverlauf ${selectedDance}: ` + history.map(row => `${row.event.date}, ${row.event.city}, Hgr. ${row.event.className}: ${row.value} Prozent`).join("; "));
+      const points = history.map((row, index) => ({
+        ...row,
+        x: history.length === 1 ? 310 : 75 + index * 510 / (history.length - 1),
+        y: 145 - row.value * 1.2
+      }));
+      const lines = classes.map(className => {
+        const selected = points.filter(point => point.event.className === className);
+        const color = className === "D" ? "#3a8067" : "#d68c66";
+        return `<polyline points="${selected.map(point => `${point.x},${point.y}`).join(" ")}" fill="none" stroke="${color}" stroke-width="3"/>` + selected.map(point => `<circle cx="${point.x}" cy="${point.y}" r="5" fill="${color}" stroke="white" stroke-width="2"/>`).join("");
+      }).join("");
+      chart.innerHTML = `<g stroke="#e7eee7"><line x1="45" y1="25" x2="600" y2="25"/><line x1="45" y1="85" x2="600" y2="85"/><line x1="45" y1="145" x2="600" y2="145"/></g><text x="0" y="29">100 %</text><text x="10" y="89">50 %</text><text x="19" y="149">0 %</text>${lines}<g text-anchor="middle">${points.map(point => `<text x="${point.x}" y="170">${point.event.date.slice(0, 5)}</text><text x="${point.x}" y="185">${point.event.city}</text>`).join("")}</g>`;
+      document.querySelector("#history-title").textContent = `Verlauf · ${selectedDance}`;
+      document.querySelector("#history-table").innerHTML = table(history);
+      document.querySelector("#dance-evidence").innerHTML = rows.length ? table(rows) : "<p class='muted small'>Keine Startklasse ausgewählt.</p>";
+    }
+    document.querySelectorAll(".pill-group input").forEach(input => input.addEventListener("change", renderDances));
+    renderDances();
+
+    document.querySelector("#event-select").addEventListener("change", event => {
+      document.querySelector("#event-latest").hidden = event.target.value !== "latest";
+      document.querySelector("#event-older").hidden = event.target.value !== "older";
+    });
+    document.querySelectorAll("[data-detail-tab]").forEach(button => button.addEventListener("click", () => {
+      const name = button.dataset.detailTab;
+      document.querySelectorAll("[data-detail]").forEach(panel => { panel.hidden = panel.dataset.detail !== name; });
+      document.querySelectorAll("[data-detail-tab]").forEach(tab => tab.setAttribute("aria-selected", String(tab === button)));
+    }));
+    document.querySelector("#import-form").addEventListener("submit", event => {
+      event.preventDefault();
+      const message = document.querySelector("#import-message");
+      message.textContent = "Dies ist eine Vorschau: Es wurden keine Ergebnisse abgerufen oder gespeichert.";
+      message.hidden = false;
+    });
+  </script>
+</body>
+</html>

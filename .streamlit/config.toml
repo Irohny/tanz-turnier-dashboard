@@ -1,0 +1,33 @@
+[theme]
+base = "light"
+baseRadius = "0.75rem"
+
+[theme.light]
+primaryColor = "#27664f"
+backgroundColor = "#f5f6f1"
+secondaryBackgroundColor = "#ffffff"
+textColor = "#1d2928"
+borderColor = "#dce5dc"
+chartCategoricalColors = ["#3a8067", "#bd603b", "#386eaa", "#9d5483", "#797932"]
+
+[theme.light.sidebar]
+primaryColor = "#3a8067"
+backgroundColor = "#193b32"
+secondaryBackgroundColor = "#2b5142"
+textColor = "#eaf3eb"
+borderColor = "#547466"
+
+[theme.dark]
+primaryColor = "#3a8067"
+backgroundColor = "#101b17"
+secondaryBackgroundColor = "#1e3028"
+textColor = "#e5eee7"
+borderColor = "#3a5145"
+chartCategoricalColors = ["#7fc4a1", "#f2ac7a", "#8db9e4", "#d8a2c6", "#d7cc76"]
+
+[theme.dark.sidebar]
+primaryColor = "#3a8067"
+backgroundColor = "#11251e"
+secondaryBackgroundColor = "#263f34"
+textColor = "#e5eee7"
+borderColor = "#405c4c"
